@@ -14,4 +14,22 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-In this tutorial..
+In this tutorial, we'll practice assembling RADseq-style data. Our objectives are to:
+
+1) understand the broad strokes of how `ipyrad` assembles data
+2) compare results from a de novo and reference-based assembly
+3) produce output files for use in downstream analyses
+
+To do this, we'll use a small subset of data from the patch-nosed salamander (*Urspelerpes brucei*). This is a tiny (~ 25 mm) lungless salamander endemic to just ~ 20 km^2^ in Georgia and South Carolina. 
+
+<center>![](https://live.staticflickr.com/277/19325478625_f58f9b7b15_b.jpg){ width=40% }</center>
+
+\
+Aren't they beautiful? Today, we'll use "RADcap" [(Hoffberg et al. 2016)](https://onlinelibrary.wiley.com/doi/abs/10.1111/1755-0998.12566) data generated from three individuals each from three populations of this salamander.
+
+We'll first create a new `ipyrad` assembly by typing `ipyrad -n ubrucei`. Let's look at this template `ipyrad` parameters file:
+
+```{bash}
+cat ipyrad_files/params-ubrucei.txt
+```
+
