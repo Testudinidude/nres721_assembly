@@ -33,15 +33,17 @@ To do this, we'll use data from the patch-nosed salamander (*Urspelerpes brucei*
 <center>![](https://live.staticflickr.com/277/19325478625_f58f9b7b15_b.jpg){ width=40% }</center>
 
 \
-Today, we're going to use a small subset of a larger, unpublished RADcap [(Hoffberg et al. 2016)](https://onlinelibrary.wiley.com/doi/abs/10.1111/1755-0998.12566) dataset generated from individuals sampled across the small distribution of this species. This subset contains data from nine individuals: three each from three collection localities. We can see these files in our `/data` directory:
+Today, we're going to use a small subset of a larger, unpublished RADcap [(Hoffberg et al. 2016)](https://onlinelibrary.wiley.com/doi/abs/10.1111/1755-0998.12566) dataset generated from individuals sampled across the small distribution of this species. This subset contains data from twelve individuals: three each from four collection localities. We can see these files in our `/data` directory:
 
 ```{bash, comment=NA}
 ls ./data/*
 ```
 
-There are a total of 18 files, consisting of a R1 and R2 file for each of the nine samples. Samples U03--U05 come from one collection locality, U19--U21 from a second, and U41--U43 from a third.
+There are a total of 24 files, consisting of a R1 and R2 file for each of the nine samples. Samples U03--U05 come from one collection locality, U19--U21 from a second, U23--U25 from a third, and U41--U43 from a fourth. These data have already been demultiplexed and "decloned" (i.e., PCR duplicates removed); the data for each sample has been subsetted down to 37,500 reads for consistently and manageability in this tutorial. 
 
-To assemble these data in `ipyrad`, we'll first create a new assembly by typing `ipyrad -n ubrucei_denovo`. Let's look at this template `ipyrad` parameters file:
+There are two general ways in which we can assembled these data: de novo and using a reference genome. In this case, there does not exist a full reference genome for any close relative of *Urspelerpes*; because salamanders have very large genomes, few full assemblies exist. First, we'll try assembling these data de novo.
+
+Let's create a new assembly by typing `ipyrad -n ubrucei_denovo`. Let's look at this template `ipyrad` parameters file:
 
 ```{bash, comment=NA}
 cat ipyrad_files/params-ubrucei_denovo.txt
@@ -52,3 +54,22 @@ This is the file in which you can tweak a number of assembly parameters. See [he
 * Write `./data/*fq.gz` for `[2] [raw_fastq_path]`; this is telling `ipyrad` to use all .fq.gz files in our `data/` directory.
 * `pairddrad` for `[7] [datatype]`; although these are RADcap data and thus, `pair3rad` might seem most appropriate, we have already independently "decloned" the reads and will treat them as `pairddrad` data for the purposes of this tutorial.
 * `[8] [restriction_overhang]`
+.....
+
+Next, we'll assemble the data. [insert explanation]
+
+```{bash, eval = FALSE}
+ipyrad -p params-ubrucei_denovo.txt -s 1
+```
+
+[evaluate results]
+
+Although we don't have a reference genome, we can assemble these data against a "pseudo-reference" genome that consists of the RADcap loci for which we designed baits.
+
+```{bash, eval = FALSE, eval = FALSE}
+cp params-ubrucei_denovo.txt params-ubrucei_reference.txt
+```
+
+```{bash, eval = FALSE}
+ipyrad -p params-ubrucei_reference.txt -s 1234567
+```
