@@ -100,3 +100,21 @@
   Begin run: 2019-08-29 20:55
   Using args {'force': True, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-test.txt', 'branch': None, 'steps': '1234567', 'debug': False, 'new': None, 'download': None, 'MPI': False}
   Platform info: ('Darwin', 'Todds-MacBook-Pro.local', '18.7.0', 'Darwin Kernel Version 18.7.0: Thu Jun 20 18:42:21 PDT 2019; root:xnu-4903.270.47~4/RELEASE_X86_64', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.30]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2019-09-03 14:20
+  Using args {'force': True, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-ubrucei.txt', 'branch': None, 'steps': '1234567', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Darwin', 'Todds-MacBook-Pro.local', '18.7.0', 'Darwin Kernel Version 18.7.0: Thu Jun 20 18:42:21 PDT 2019; root:xnu-4903.270.47~4/RELEASE_X86_64', 'x86_64')2019-09-03 14:20:33,218 	pid=33836 	[assembly.py]	ERROR 	IPyradWarningExit:     Error: Step 1 requires that you enter one of the following:
+        (1) a sorted_fastq_path
+        (2) a raw_fastq_path + barcodes_path
+    
+
+ -------------------------------------------------------------
+  ipyrad [v.0.7.30]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2019-09-03 14:21
+  Using args {'force': True, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-test.txt', 'branch': None, 'steps': '1234567', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Darwin', 'Todds-MacBook-Pro.local', '18.7.0', 'Darwin Kernel Version 18.7.0: Thu Jun 20 18:42:21 PDT 2019; root:xnu-4903.270.47~4/RELEASE_X86_64', 'x86_64')
