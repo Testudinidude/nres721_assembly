@@ -41,4 +41,4 @@ ipyrad_files/*/*.gz
 ipyrad_files/*/*hdf5
 ipyrad_files/*/*catg
 ipyrad_files/*/*bam*
-
+ipyrad_files/*/*utemp.sort
