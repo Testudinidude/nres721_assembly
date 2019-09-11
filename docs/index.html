@@ -197,8 +197,16 @@ $(document).ready(function () {
 </div>
 
 
+<style>
+pre code, pre, code {
+  white-space: pre !important;
+  overflow-x: scroll !important;
+  word-break: keep-all !important;
+  word-wrap: initial !important;
+}
+</style>
 <div class="alert alert-danger">
-<p><strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in <code>ipyrad</code> for an in-class demonstration, not to be a comprehensive guide to doing this for research purposes. If you wish to follow along, please install the latest version of <a href="https://ipyrad.readthedocs.io/"><code>ipyrad</code></a>; I have written this using <code>v0.7.30</code>. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run <code>ipyrad</code> through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We’ll return to <code>R</code> for downstream analyses!</p>
+<p><strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in <code>ipyrad</code> <a href="https://ipyrad.readthedocs.io/"><code>(https://ipyrad.readthedocs.io/)</code></a>for an in-class demonstration, not to be a comprehensive guide to doing this for research purposes. If you wish to follow along, please install the latest version of <code>ipyrad</code>; I have written this using <code>v0.7.30</code>. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run <code>ipyrad</code> through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We’ll return to <code>R</code> for downstream analyses!</p>
 </div>
 <p>In this tutorial, we’ll practice assembling RADseq-style data. Our objectives are to:</p>
 <ol style="list-style-type: decimal">
@@ -298,11 +306,165 @@ U25      37500
 U41      37500
 U42      37500
 U43      37500</code></pre>
+<p>Next, we’ll run step 2.</p>
+<pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 2</code></pre>
+<p>This step filters and edits reads, using thresholds set in the parameters file. This means that we (probably) don’t need to filter data before entering <code>ipyrad</code>! We can view the results of this step in the <code>ubrucei_denovo_edits/s2_rawedit_stats.txt</code> file:</p>
+<pre><code>     reads_raw  trim_adapter_bp_read1  trim_adapter_bp_read2  trim_quality_bp_read1  trim_quality_bp_read2  reads_filtered_by_Ns  reads_filtered_by_minlen  reads_passed_filter
+U03      37500                      0                      0                      0                      0                     0                         0                37500
+U04      37500                      0                      0                      0                      0                     0                         0                37500
+U05      37500                      0                      0                      0                      0                     0                         0                37500
+U19      37500                      0                      0                      0                      0                     0                         0                37500
+U20      37500                      0                      0                      0                      0                     0                         0                37500
+U21      37500                      0                      0                      0                      0                     0                         0                37500
+U23      37500                      0                      0                      0                      0                     0                         0                37500
+U24      37500                      0                      0                      0                      0                     0                         0                37500
+U25      37500                      0                      0                      0                      0                     0                         0                37500
+U41      37500                      0                      0                      0                      0                     0                         0                37500
+U42      37500                      0                      0                      0                      0                     0                         0                37500
+U43      37500                      0                      0                      0                      0                     0                         0                37500</code></pre>
+<p>Next, we’ll run step 3. This is the within-sample clustering step, in which the reads are compared against each other, clustered based on similarity into “loci”, and then aligned. This is a relatively computationally intensive step.</p>
+<pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 3</code></pre>
+<p>Once completed, we can view the results of this step in the <code>ubrucei_denovo_clust_0.85/s3_cluster_stats.txt</code> file:</p>
+<pre><code>    clusters_total  hidepth_min clusters_hidepth avg_depth_total avg_depth_mj avg_depth_stat sd_depth_total sd_depth_mj sd_depth_stat filtered_bad_align
+U03          11654            6             1123            2.81        14.98          14.98          17.88       56.10         56.10                  0
+U04          12440            6             1109            2.66        14.51          14.51          16.04       52.18         52.18                 25
+U05          11795            6             1136            2.75        14.52          14.52          17.64       55.39         55.39                 26
+U19          11379            6             1105            2.83        14.98          14.98          19.10       59.88         59.88                 31
+U20          11500            6             1067            2.82        15.16          15.16          18.32       58.64         58.64                 21
+U21          11336            6             1136            2.90        15.07          15.07          18.37       56.50         56.50                 19
+U23          11945            6             1098            2.71        14.76          14.76          16.63       53.31         53.31                 24
+U24          12355            6             1100            2.64        14.28          14.28          15.56       50.60         50.60                  0
+U25          11852            6             1109            2.76        14.77          14.77          16.93       53.79         53.79                 24
+U41          10944            6             1123            2.67        12.57          12.57           4.53        9.09          9.09                  4
+U42          11011            6             1083            2.82        14.71          14.71          16.80       51.99         51.99                  0
+U43          11010            6             1078            2.84        14.89          14.89          17.14       53.22         53.22                  0</code></pre>
+<p>Next, we’ll run steps 4 and 5 together. These steps estimate sequencing error rates, heterozygosity, and call consensus sequences for each individual.</p>
+<pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 45</code></pre>
+<p>We’ll skip over the results from this step and proceed immediately to step 6. This is another “clustering” step, but instead of clustering reads within individuals, we’re clustering loci among individuals. With many samples, this step can be computationally intensive, but it should run quite quickly for us.</p>
+<pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 6</code></pre>
+<p>Finally, we’ll run step 7, in which loci are catalogued, and data are output into a variety of formats (e.g., VCF, PHYLIP, Structure, etc.) for downstream analysis.</p>
+<pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 7</code></pre>
+<p>This also produces a useful file (<code>ubrucei_denovo_outfiles/ubrucei_denovo_stats.txt</code>) with summary statistics, which looks like this:</p>
+<pre><code>
+
+## The number of loci caught by each filter.
+## ipyrad API location: [assembly].stats_dfs.s7_filters
+
+                            total_filters  applied_order  retained_loci
+total_prefiltered_loci               1618              0           1618
+filtered_by_rm_duplicates              13             13           1605
+filtered_by_max_indels                 10             10           1595
+filtered_by_max_snps                    9              1           1594
+filtered_by_max_shared_het             65             59           1535
+filtered_by_min_sample                588            578            957
+filtered_by_max_alleles                91              9            948
+total_filtered_loci                   948              0            948
+
+
+## The number of loci recovered for each Sample.
+## ipyrad API location: [assembly].stats_dfs.s7_samples
+
+     sample_coverage
+U03              792
+U04              770
+U05              800
+U19              761
+U20              752
+U21              782
+U23              771
+U24              762
+U25              775
+U41              698
+U42              706
+U43              745
+
+
+## The number of loci for which N taxa have data.
+## ipyrad API location: [assembly].stats_dfs.s7_loci
+
+    locus_coverage  sum_coverage
+1                0             0
+2                0             0
+3                0             0
+4                0             0
+5               78            78
+6               86           164
+7               74           238
+8               68           306
+9               74           380
+10              98           478
+11             140           618
+12             330           948
+
+
+## The distribution of SNPs (var and pis) per locus.
+## var = Number of loci with n variable sites (pis + autapomorphies)
+## pis = Number of loci with n parsimony informative site (minor allele in &gt;1 sample)
+## ipyrad API location: [assembly].stats_dfs.s7_snps
+
+    var  sum_var  pis  sum_pis
+0   531        0  662        0
+1   197      197  135      135
+2    74      345   53      241
+3    53      504   44      373
+4    25      604   14      429
+5    19      699   11      484
+6    14      783   10      544
+7    12      867    5      579
+8     7      923    6      627
+9     4      959    2      645
+10    3      989    2      665
+11    1     1000    1      676
+12    0     1000    0      676
+13    3     1039    2      702
+14    1     1053    1      716
+15    1     1068    0      716
+16    0     1068    0      716
+17    0     1068    0      716
+18    0     1068    0      716
+19    1     1087    0      716
+20    1     1107    0      716
+21    0     1107    0      716
+22    0     1107    0      716
+23    0     1107    0      716
+24    1     1131    0      716
+
+
+## Final Sample stats summary
+
+     state  reads_raw  reads_passed_filter  clusters_total  clusters_hidepth  hetero_est  error_est  reads_consens  loci_in_assembly
+U03      7      37500                37500           11654              1123    0.011791   0.008379           1029               792
+U04      7      37500                37500           12440              1109    0.012127   0.008798           1013               770
+U05      7      37500                37500           11795              1136    0.011539   0.008005           1045               800
+U19      7      37500                37500           11379              1105    0.012177   0.007240           1015               761
+U20      7      37500                37500           11500              1067    0.011174   0.007838            978               752
+U21      7      37500                37500           11336              1136    0.012133   0.007808           1044               782
+U23      7      37500                37500           11945              1098    0.012531   0.007298           1005               771
+U24      7      37500                37500           12355              1100    0.011205   0.007440           1014               762
+U25      7      37500                37500           11852              1109    0.011092   0.008452           1025               775
+U41      7      37500                37500           10944              1123    0.012195   0.008249           1031               698
+U42      7      37500                37500           11011              1083    0.011476   0.008432           1006               706
+U43      7      37500                37500           11010              1078    0.011604   0.007870            999               745</code></pre>
+<div class="alert alert-info">
+<p><strong>Discussion:</strong> Examine these summary statistics. At what steps are loci being filtered out? Is this indicative of any problems with our analysis or data?</p>
+</div>
 <p>Although we don’t want to use a full genome assembly as a reference genome, these RADcap data provide us with another opportunity for assembly: a “pseudo-reference” genome. To understand this, it’s worth thinking a bit about what the RADcap data are. We created 3RAD libraries—each of which probably contained hundreds of thousands of loci—for each individual, but then we conducted a “sequence capture” reaction to enrich them for a pre-selected subset of 1000 loci. So ideally, these reads are mostly from those 1000 loci. Rather than assemble these <em>de novo</em>, if we have a “reference” sequence for each those 1000 loci, we can just assemble against those!</p>
-<p>We can peek at this pseudo-reference—formatted as a FASTA file—here:</p>
 <div class="alert alert-info">
 <p><strong>Discussion:</strong> How might you predict that assembling against a pseudo-reference genome will change the results of our assembly?</p>
 </div>
+<p>We can peek at this pseudo-reference—formatted as a FASTA file—here:</p>
+<pre class="bash"><code>head -n 10 reference/ubrucei_pseudoreference.fasta</code></pre>
+<pre><code>## &gt;locus1
+## TATGTAAAACCCCCTCAGTGTTGTTGTCAATGTTGTCCCAAATTACATAGTGATGTCCAGCAAATGGATTAGCTACTATTTTGATCTTGTAAGAGGATTTGTTGTAGGCTTTACATCGAGCACGTGAGAAAAAGCNNNNNNNNNNGGATCAGAGTATCATGTAGGCTGGGGGCTCTAGTAACACTGAAGGACATTGACAGAGGTACTAACCTATAGTAGCTAATATCGGGTCAGTACGCAGAATAGGCCAATGTTTAGAGATGCAGCTCCTGAATATATTTCtCATC
+## &gt;locus10
+## ATTGATAGTATTTTGCGATGGTAAATACACGAGCAAAAAAGAAAATGGCCAGATCTCGAACCCAGCCGAATAGTACACCTAGGTCTGCTTTACAGCTCTCATTATTCAGTTTTGGCATGCAAAAAGGGGAGCTGNNNNNNNNNNAACAATCGGAGCTACTTTACATAATGATGAGACGACTCCCTCCATTGATCTCCCTGAGCAAACTGGGTGCCCTGCTAATGTTGATTTATCTGTGACAGAAAGTGAAAGTACCAACGATGACCTAAATAATGTTCCACCACC
+## &gt;locus100
+## TGATATATGACGAGACTGTCTCGTCATTAGCACTTAAGGGGTTAAAGAAAAAATATTGTATGGTTGCTAATTATGTTCATAAAAATCAAACGCCCCACAGAACCTGTAGAAACCATGTAAAAACAGTTGTTTATNNNNNNNNNNGTGGTAGATGGTGAGGGATTAGGGGAAGAAAGTCAAAAACCTAGGGGTGTCTTGTATTTTAGACGTTCAATGGTTCATTGTCTTTTAACATTGCCTACCACCGAAACTGGTATGTTGAgatGGTACGCTAATGCTTGTAGcCtCATC
+## &gt;locus1000
+## AAGTTGCAGATTGCTGGCTTGTGGAATGGGGACCCTGCCCTACCTGTGTCCTGTAATTTGGGGTATGCCATAATAGCTTCCATGTCTGCAGAAGCCCATGTGGGCCAAACAACTAAATCAGCTTATTACCTCTGGNNNNNNNNNNGGGTTTGAAAAAGTATGGCCACTTGTCCAAGTACAGAATCATTAGGTTGGCTCCCTTATTGAAATCAgattGATTGGTTGGTTGTGCGTTGAAAGGGCTCCAAAAGGTTGGGCCCAACTTTATTCGAGAATGGCTTCAGCCACC
+## &gt;locus10000
+## ATGGTGAGAGGGGACAGGGTCACTCCGGCCTCTGGCAGGGACACTGTCGCAATGGGGGCTGATTCTGACGAGTCACTACAGGGAAATAGCAGCACCATCAATGTATAAGCACCACGCTGGGGGGGGGGGTTTATCCGNNNNNNNNNNAGGACCCGCTGGGCCTCAACAGTTTTGGCAGACAGGTACAGAGCTTCAGAGGGGCCGTGGGGAAGAGGGTATGGTGGGGCTTCTTGAAGGCCAGGTTTCAGCTGTTTACCAGGTCACCTTTATTGATTAGTTGATGCCACC</code></pre>
+<p>Create a new parameters file here.</p>
 <pre class="bash"><code>cp params-ubrucei_denovo.txt params-ubrucei_reference.txt</code></pre>
 <p>We should then alter the following parameters:</p>
 <ul>

@@ -9,9 +9,20 @@ author: "Todd W. Pierson"
 date: "16 October 2019"
 output: html_document
 ---
+<style>
+pre code, pre, code {
+  white-space: pre !important;
+  overflow-x: scroll !important;
+  word-break: keep-all !important;
+  word-wrap: initial !important;
+}
+</style>
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+options(width=200)
+#```{r setup, include=FALSE}
+#knitr::opts_chunk$set(echo = TRUE, width.cutoff=120)
 ```
 
 ```{r, include=FALSE}
@@ -19,7 +30,7 @@ setwd("/Volumes/G-DRIVE/Dropbox/Teaching/2019_NRES_721/nres721_assembly")
 ```
 
 <div class="alert alert-danger">
-  <strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in `ipyrad` for an in-class demonstration, not to be a comprehensive guide to doing this for research purposes. If you wish to follow along, please install the latest version of [`ipyrad`](https://ipyrad.readthedocs.io/); I have written this using `v0.7.30`. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run `ipyrad` through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We'll return to `R` for downstream analyses!
+  <strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in `ipyrad` [`(https://ipyrad.readthedocs.io/)`](https://ipyrad.readthedocs.io/)for an in-class demonstration, not to be a comprehensive guide to doing this for research purposes. If you wish to follow along, please install the latest version of `ipyrad`; I have written this using `v0.7.30`. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run `ipyrad` through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We'll return to `R` for downstream analyses!
 </div>
 
 In this tutorial, we'll practice assembling RADseq-style data. Our objectives are to:
@@ -74,15 +85,74 @@ This step simply reads in our data files, and we can review the results in the `
 cat ipyrad_files/ubrucei_denovo_s1_demultiplex_stats.txt
 ```
 
-Although we don't want to use a full genome assembly as a reference genome, these RADcap data provide us with another opportunity for assembly: a "pseudo-reference" genome. To understand this, it's worth thinking a bit about what the RADcap data are. We created 3RAD libraries—each of which probably contained hundreds of thousands of loci—for each individual, but then we conducted a "sequence capture" reaction to enrich them for a pre-selected subset of 1000 loci. So ideally, these reads are mostly from those 1000 loci. Rather than assemble these *de novo*, if we have a "reference" sequence for each those 1000 loci, we can just assemble against those!
+Next, we'll run step 2.
 
-We can peek at this pseudo-reference—formatted as a FASTA file—here:
+```{bash eval = FALSE}
+ipyrad -p params-ubrucei_denovo.txt -s 2
+```
+
+This step filters and edits reads, using thresholds set in the parameters file. This means that we (probably) don't need to filter data before entering `ipyrad`! We can view the results of this step in the `ubrucei_denovo_edits/s2_rawedit_stats.txt` file:
+
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/ubrucei_denovo_edits/s2_rawedit_stats.txt
+```
+
+Next, we'll run step 3. This is the within-sample clustering step, in which the reads are compared against each other, clustered based on similarity into "loci", and then aligned. This is a relatively computationally intensive step.
+
+```{bash eval = FALSE}
+ipyrad -p params-ubrucei_denovo.txt -s 3
+```
+
+Once completed, we can view the results of this step in the `ubrucei_denovo_clust_0.85/s3_cluster_stats.txt` file:
+
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/ubrucei_denovo_clust_0.85/s3_cluster_stats.txt
+```
+
+Next, we'll run steps 4 and 5 together. These steps estimate sequencing error rates, heterozygosity, and call consensus sequences for each individual.
+
+```{bash eval = FALSE}
+ipyrad -p params-ubrucei_denovo.txt -s 45
+```
+
+We'll skip over the results from this step and proceed immediately to step 6. This is another "clustering" step, but instead of clustering reads within individuals, we're clustering loci among individuals. With many samples, this step can be computationally intensive, but it should run quite quickly for us.
+
+```{bash eval = FALSE}
+ipyrad -p params-ubrucei_denovo.txt -s 6
+```
+
+Finally, we'll run step 7, in which loci are catalogued, and data are output into a variety of formats (e.g., VCF, PHYLIP, Structure, etc.) for downstream analysis. 
+
+```{bash eval = FALSE}
+ipyrad -p params-ubrucei_denovo.txt -s 7
+```
+
+This also produces a useful file (`ubrucei_denovo_outfiles/ubrucei_denovo_stats.txt`) with summary statistics, which looks like this:
+
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/ubrucei_denovo_outfiles/ubrucei_denovo_stats.txt
+```
+
+<div class="alert alert-info">
+  <strong>Discussion:</strong> Examine these summary statistics. At what steps are loci being filtered out? Is this indicative of any problems with our analysis or data?
+</div>
+
+
+Although we don't want to use a full genome assembly as a reference genome, these RADcap data provide us with another opportunity for assembly: a "pseudo-reference" genome. To understand this, it's worth thinking a bit about what the RADcap data are. We created 3RAD libraries—each of which probably contained hundreds of thousands of loci—for each individual, but then we conducted a "sequence capture" reaction to enrich them for a pre-selected subset of 1000 loci. So ideally, these reads are mostly from those 1000 loci. Rather than assemble these *de novo*, if we have a "reference" sequence for each those 1000 loci, we can just assemble against those!
 
 <div class="alert alert-info">
   <strong>Discussion:</strong> How might you predict that assembling against a pseudo-reference genome will change the results of our assembly?
 </div>
 
-```{bash, eval = FALSE, eval = FALSE}
+We can peek at this pseudo-reference—formatted as a FASTA file—here:
+
+```{bash, eval = TRUE}
+head -n 10 reference/ubrucei_pseudoreference.fasta
+```
+
+Create a new parameters file here. 
+
+```{bash, eval = FALSE}
 cp params-ubrucei_denovo.txt params-ubrucei_reference.txt
 ```
 
