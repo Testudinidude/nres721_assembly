@@ -36,4 +36,9 @@ vignettes/*.pdf
 rsconnect/
 
 # ipyrad assembly files
-ipyrad_files/ubrucei*
+ipyrad_files/*.json
+ipyrad_files/*/*.gz
+ipyrad_files/*/*hdf5
+ipyrad_files/*/*catg
+ipyrad_files/*/*bam*
+

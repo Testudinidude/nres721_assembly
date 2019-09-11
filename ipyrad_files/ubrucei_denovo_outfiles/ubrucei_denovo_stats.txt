@@ -1,0 +1,100 @@
+
+
+## The number of loci caught by each filter.
+## ipyrad API location: [assembly].stats_dfs.s7_filters
+
+                            total_filters  applied_order  retained_loci
+total_prefiltered_loci               1618              0           1618
+filtered_by_rm_duplicates              13             13           1605
+filtered_by_max_indels                 10             10           1595
+filtered_by_max_snps                    9              1           1594
+filtered_by_max_shared_het             65             59           1535
+filtered_by_min_sample                588            578            957
+filtered_by_max_alleles                91              9            948
+total_filtered_loci                   948              0            948
+
+
+## The number of loci recovered for each Sample.
+## ipyrad API location: [assembly].stats_dfs.s7_samples
+
+     sample_coverage
+U03              792
+U04              770
+U05              800
+U19              761
+U20              752
+U21              782
+U23              771
+U24              762
+U25              775
+U41              698
+U42              706
+U43              745
+
+
+## The number of loci for which N taxa have data.
+## ipyrad API location: [assembly].stats_dfs.s7_loci
+
+    locus_coverage  sum_coverage
+1                0             0
+2                0             0
+3                0             0
+4                0             0
+5               78            78
+6               86           164
+7               74           238
+8               68           306
+9               74           380
+10              98           478
+11             140           618
+12             330           948
+
+
+## The distribution of SNPs (var and pis) per locus.
+## var = Number of loci with n variable sites (pis + autapomorphies)
+## pis = Number of loci with n parsimony informative site (minor allele in >1 sample)
+## ipyrad API location: [assembly].stats_dfs.s7_snps
+
+    var  sum_var  pis  sum_pis
+0   531        0  662        0
+1   197      197  135      135
+2    74      345   53      241
+3    53      504   44      373
+4    25      604   14      429
+5    19      699   11      484
+6    14      783   10      544
+7    12      867    5      579
+8     7      923    6      627
+9     4      959    2      645
+10    3      989    2      665
+11    1     1000    1      676
+12    0     1000    0      676
+13    3     1039    2      702
+14    1     1053    1      716
+15    1     1068    0      716
+16    0     1068    0      716
+17    0     1068    0      716
+18    0     1068    0      716
+19    1     1087    0      716
+20    1     1107    0      716
+21    0     1107    0      716
+22    0     1107    0      716
+23    0     1107    0      716
+24    1     1131    0      716
+
+
+## Final Sample stats summary
+
+     state  reads_raw  reads_passed_filter  clusters_total  clusters_hidepth  hetero_est  error_est  reads_consens  loci_in_assembly
+U03      7      37500                37500           11654              1123    0.011791   0.008379           1029               792
+U04      7      37500                37500           12440              1109    0.012127   0.008798           1013               770
+U05      7      37500                37500           11795              1136    0.011539   0.008005           1045               800
+U19      7      37500                37500           11379              1105    0.012177   0.007240           1015               761
+U20      7      37500                37500           11500              1067    0.011174   0.007838            978               752
+U21      7      37500                37500           11336              1136    0.012133   0.007808           1044               782
+U23      7      37500                37500           11945              1098    0.012531   0.007298           1005               771
+U24      7      37500                37500           12355              1100    0.011205   0.007440           1014               762
+U25      7      37500                37500           11852              1109    0.011092   0.008452           1025               775
+U41      7      37500                37500           10944              1123    0.012195   0.008249           1031               698
+U42      7      37500                37500           11011              1083    0.011476   0.008432           1006               706
+U43      7      37500                37500           11010              1078    0.011604   0.007870            999               745

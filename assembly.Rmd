@@ -18,22 +18,22 @@ knitr::opts_chunk$set(echo = TRUE)
 setwd("/Volumes/G-DRIVE/Dropbox/Teaching/2019_NRES_721/nres721_assembly")
 ```
 
-<div class="alert alert-info">
-  <strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in `ipyrad` for an in-class demonstration, not to be a comprehensive guide to doing this for research purposes. If you wish to follow along, please install the latest version of [`ipyrad`](https://ipyrad.readthedocs.io/); I have written this using `v0.7.30`. This program is written for Linux or Mac operating systems; if you are running a Windows machine, you can try to run `ipyrad` through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We'll return to `R` for downstream analyses!
+<div class="alert alert-danger">
+  <strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in `ipyrad` for an in-class demonstration, not to be a comprehensive guide to doing this for research purposes. If you wish to follow along, please install the latest version of [`ipyrad`](https://ipyrad.readthedocs.io/); I have written this using `v0.7.30`. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run `ipyrad` through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We'll return to `R` for downstream analyses!
 </div>
 
 In this tutorial, we'll practice assembling RADseq-style data. Our objectives are to:
 
-1) understand the broad strokes of how `ipyrad` assembles data
+1) understand the general concepts re: how `ipyrad` assembles data
 2) compare results from a de novo and reference-based assembly
 3) produce output files for use in downstream analyses
 
-To do this, we'll use data from the patch-nosed salamander (*Urspelerpes brucei*). This is a tiny (~ 25 mm) lungless salamander endemic to just ~ 20 km^2^ in Georgia and South Carolina. Aren't they beautiful? 
+To do this, we'll use data from the patch-nosed salamander (*Urspelerpes brucei*). This is a tiny (~25 mm) lungless salamander endemic to just ~ 20 km^2^ in Georgia and South Carolina. Aren't they beautiful? 
 
 <center>![](https://live.staticflickr.com/277/19325478625_f58f9b7b15_b.jpg){ width=40% }</center>
 
 \
-Today, we're going to use a small subset of a larger, unpublished RADcap [(Hoffberg et al. 2016)](https://onlinelibrary.wiley.com/doi/abs/10.1111/1755-0998.12566) dataset generated from individuals sampled across the small distribution of this species. This subset contains data from twelve individuals: three each from four collection localities. We can see these files in our `/data` directory:
+Today, we're going to use a small subset of a larger, unpublished RADcap [(Hoffberg et al. 2016)](https://onlinelibrary.wiley.com/doi/abs/10.1111/1755-0998.12566) dataset generated from individuals sampled across the small distribution of this species. This subset contains data from twelve individuals: three each from four collection localities. We can see these files in our `data` directory:
 
 ```{bash, comment=NA}
 ls ./data/*
@@ -41,34 +41,56 @@ ls ./data/*
 
 There are a total of 24 files, consisting of a R1 and R2 file for each of the nine samples. Samples U03--U05 come from one collection locality, U19--U21 from a second, U23--U25 from a third, and U41--U43 from a fourth. These data have already been demultiplexed and "decloned" (i.e., PCR duplicates removed); the data for each sample has been subsetted down to 37,500 reads for consistently and manageability in this tutorial. 
 
-There are two general ways in which we can assembled these data: de novo and using a reference genome. In this case, there does not exist a full reference genome for any close relative of *Urspelerpes*; because salamanders have very large genomes, few full assemblies exist. First, we'll try assembling these data de novo.
+There are two general ways in which we can assembled these data: de novo and using a reference genome. In a *de novo* assembly, reads are clustered and aligned against other reads, and no reference genome is required. This is really great for non-model organisms for which reference genomes don't exist! For example, in our case, there does not exist a full reference genome for any close relative of *Urspelerpes*; in fact, because salamanders have very large genomes, only one chromosome-level genome assembly exists ([the 32 Gb axolotl genome](https://genome.cshlp.org/content/29/2/317.long)). For our purposes today, we're going to assembly these data *de novo* ([but see the final tutorial for an example using an assembled reference genome!](https://twpierson.github.io/nres721_genome/)).
 
-Let's create a new assembly by typing `ipyrad -n ubrucei_denovo`. Let's look at this template `ipyrad` parameters file:
+<div class="alert alert-info">
+  <strong>Discussion:</strong> What might the advantages be of assembling against a reference genome?
+</div>
 
-```{bash, comment=NA}
-cat ipyrad_files/params-ubrucei_denovo.txt
+Let's create a new assembly by typing `ipyrad -n template`. Let's look at this template `ipyrad` parameters file:
+
+```{bash comment=NA}
+cat ipyrad_files/params-template.txt
 ```
 
 This is the file in which you can tweak a number of assembly parameters. See [here](https://ipyrad.readthedocs.io/parameters.html) for a thorough description of what each of these means. For our purposes, we only need to change a few. In your favorite text editor, open `params-ubrucei_denovo.txt` and change the following lines:
 
-* Write `./data/*fq.gz` for `[2] [raw_fastq_path]`; this is telling `ipyrad` to use all .fq.gz files in our `data/` directory.
-* `pairddrad` for `[7] [datatype]`; although these are RADcap data and thus, `pair3rad` might seem most appropriate, we have already independently "decloned" the reads and will treat them as `pairddrad` data for the purposes of this tutorial.
-* `[8] [restriction_overhang]`
-.....
+* `[0] [assembly_name]` : change this parameter to `ubrucei_denovo`
+* `[2] [raw_fastq_path]` : change this parameter to `./data/*fq.gz`
+* `[7] [datatype]` : change this parameter to `pairddrad` ; although these are RADcap data and thus, `pair3rad` might seem most appropriate, we have already independently "decloned" the reads and will treat them as `pairddrad` data for the purposes of this tutorial
+* `[8] [restriction_overhang]` : change this parameter to ...
 
-Next, we'll assemble the data. [insert explanation]
+Next, we'll assemble the data. This whole process isn't too computationally-intensive (i.e., it took ~40 minutes on my 16 GB RAM, 4-core Macbook), but we might not want to wait quite that long. Don't worry—there is an opportunity to assemble data in real-time later in this tutorial.
 
-```{bash, eval = FALSE}
+We'll do this first assembly step-by-step and talk about the output. First, we'll run step 1.
+
+```{bash eval = FALSE}
 ipyrad -p params-ubrucei_denovo.txt -s 1
 ```
 
-[evaluate results]
+This step simply reads in our data files, and we can review the results in the `ubrucei_denovo_s1_demultiplex_stats.txt` file.
 
-Although we don't have a reference genome, we can assemble these data against a "pseudo-reference" genome that consists of the RADcap loci for which we designed baits.
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/ubrucei_denovo_s1_demultiplex_stats.txt
+```
+
+Although we don't want to use a full genome assembly as a reference genome, these RADcap data provide us with another opportunity for assembly: a "pseudo-reference" genome. To understand this, it's worth thinking a bit about what the RADcap data are. We created 3RAD libraries—each of which probably contained hundreds of thousands of loci—for each individual, but then we conducted a "sequence capture" reaction to enrich them for a pre-selected subset of 1000 loci. So ideally, these reads are mostly from those 1000 loci. Rather than assemble these *de novo*, if we have a "reference" sequence for each those 1000 loci, we can just assemble against those!
+
+We can peek at this pseudo-reference—formatted as a FASTA file—here:
+
+<div class="alert alert-info">
+  <strong>Discussion:</strong> How might you predict that assembling against a pseudo-reference genome will change the results of our assembly?
+</div>
 
 ```{bash, eval = FALSE, eval = FALSE}
 cp params-ubrucei_denovo.txt params-ubrucei_reference.txt
 ```
+
+We should then alter the following parameters:
+
+* `[0] [assembly_name]` : change this parameter to `ubrucei_reference`
+* `[5] [assembly_method]` : change this parameter to `reference`
+* `[6] [reference_sequence]` : change this parameter to `../reference/ubrucei_pseudoreference.fasta`
 
 ```{bash, eval = FALSE}
 ipyrad -p params-ubrucei_reference.txt -s 1234567
