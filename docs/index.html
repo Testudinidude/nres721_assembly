@@ -1609,6 +1609,8 @@ p, s, v                        ## [27] [output_formats]: Output formats (see doc
 <li><code>[8] [restriction_overhang]</code> : change this parameter to …</li>
 </ul>
 <p>Next, we’ll assemble the data. This whole process isn’t too computationally-intensive (i.e., it took ~40 minutes on my 16 GB RAM, 4-core Macbook), but we might not want to wait quite that long. Don’t worry—there is an opportunity to assemble data in real-time later in this tutorial.</p>
+<div id="steps-1-2" class="section level3">
+<h3>steps 1 &amp; 2</h3>
 <p>We’ll do this first assembly step-by-step and talk about the output. First, we’ll run step 1.</p>
 <pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 1</code></pre>
 <p>This step simply reads in our data files, and we can review the results in the <code>ubrucei_denovo_s1_demultiplex_stats.txt</code> file.</p>
@@ -1641,6 +1643,9 @@ U25      37500                      0                      0                    
 U41      37500                      0                      0                      0                      0                     0                         0                37500
 U42      37500                      0                      0                      0                      0                     0                         0                37500
 U43      37500                      0                      0                      0                      0                     0                         0                37500</code></pre>
+</div>
+<div id="step-3" class="section level3">
+<h3>step 3</h3>
 <p>Next, we’ll run step 3. This is the within-sample clustering step, in which the reads are compared against each other, clustered based on similarity into “loci”, and then aligned. This is a relatively computationally intensive step.</p>
 <pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 3</code></pre>
 <p>Once completed, we can view the results of this step in the <code>ubrucei_denovo_clust_0.85/s3_cluster_stats.txt</code> file:</p>
@@ -1657,10 +1662,19 @@ U25          11852            6             1109            2.76        14.77   
 U41          10944            6             1123            2.67        12.57          12.57           4.53        9.09          9.09                  4
 U42          11011            6             1083            2.82        14.71          14.71          16.80       51.99         51.99                  0
 U43          11010            6             1078            2.84        14.89          14.89          17.14       53.22         53.22                  0</code></pre>
+</div>
+<div id="steps-4-5" class="section level3">
+<h3>steps 4 &amp; 5</h3>
 <p>Next, we’ll run steps 4 and 5 together. These steps estimate sequencing error rates, heterozygosity, and call consensus sequences for each individual.</p>
 <pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 45</code></pre>
+</div>
+<div id="step-6" class="section level3">
+<h3>step 6</h3>
 <p>We’ll skip over the results from this step and proceed immediately to step 6. This is another “clustering” step, but instead of clustering reads within individuals, we’re clustering loci among individuals. With many samples, this step can be computationally intensive, but it should run quite quickly for us.</p>
 <pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 6</code></pre>
+</div>
+<div id="step-7" class="section level3">
+<h3>step 7</h3>
 <p>Finally, we’ll run step 7, in which loci are catalogued, and data are output into a variety of formats (e.g., VCF, PHYLIP, Structure, etc.) for downstream analysis.</p>
 <pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 7</code></pre>
 <p>This also produces a useful file (<code>ubrucei_denovo_outfiles/ubrucei_denovo_stats.txt</code>) with summary statistics, which looks like this:</p>
@@ -1768,24 +1782,28 @@ U43      7      37500                37500           11010              1078    
 <p><strong>Discussion:</strong> Examine these summary statistics. At what steps are loci being filtered out? Is this indicative of any problems with our analysis or data?</p>
 </div>
 </div>
-<div id="reference-assembly" class="section level2">
-<h2>Reference assembly</h2>
+</div>
+<div id="reference-based-assembly" class="section level2">
+<h2>Reference-based assembly</h2>
 <p>Although we don’t want to use a full genome assembly as a reference genome, these RADcap data provide us with another opportunity for assembly: a “pseudo-reference” genome. To understand this, it’s worth thinking a bit about what the RADcap data are. We created 3RAD libraries—each of which probably contained hundreds of thousands of loci—for each individual, but then we conducted a “sequence capture” reaction to enrich them for a pre-selected subset of 1000 loci. So ideally, these reads are mostly from those 1000 loci. Rather than assemble these <em>de novo</em>, if we have a “reference” sequence for each those 1000 loci, we can just assemble against those!</p>
 <div class="alert alert-info">
 <p><strong>Discussion:</strong> How might you predict that assembling against a pseudo-reference genome will change the results of our assembly?</p>
 </div>
 <p>We can peek at this pseudo-reference—formatted as a FASTA file—here:</p>
 <pre class="bash"><code>head -n 10 reference/ubrucei_pseudoreference.fasta</code></pre>
-<pre><code>## &gt;locus1
-## TATGTAAAACCCCCTCAGTGTTGTTGTCAATGTTGTCCCAAATTACATAGTGATGTCCAGCAAATGGATTAGCTACTATTTTGATCTTGTAAGAGGATTTGTTGTAGGCTTTACATCGAGCACGTGAGAAAAAGCNNNNNNNNNNGGATCAGAGTATCATGTAGGCTGGGGGCTCTAGTAACACTGAAGGACATTGACAGAGGTACTAACCTATAGTAGCTAATATCGGGTCAGTACGCAGAATAGGCCAATGTTTAGAGATGCAGCTCCTGAATATATTTCtCATC
-## &gt;locus10
-## ATTGATAGTATTTTGCGATGGTAAATACACGAGCAAAAAAGAAAATGGCCAGATCTCGAACCCAGCCGAATAGTACACCTAGGTCTGCTTTACAGCTCTCATTATTCAGTTTTGGCATGCAAAAAGGGGAGCTGNNNNNNNNNNAACAATCGGAGCTACTTTACATAATGATGAGACGACTCCCTCCATTGATCTCCCTGAGCAAACTGGGTGCCCTGCTAATGTTGATTTATCTGTGACAGAAAGTGAAAGTACCAACGATGACCTAAATAATGTTCCACCACC
-## &gt;locus100
-## TGATATATGACGAGACTGTCTCGTCATTAGCACTTAAGGGGTTAAAGAAAAAATATTGTATGGTTGCTAATTATGTTCATAAAAATCAAACGCCCCACAGAACCTGTAGAAACCATGTAAAAACAGTTGTTTATNNNNNNNNNNGTGGTAGATGGTGAGGGATTAGGGGAAGAAAGTCAAAAACCTAGGGGTGTCTTGTATTTTAGACGTTCAATGGTTCATTGTCTTTTAACATTGCCTACCACCGAAACTGGTATGTTGAgatGGTACGCTAATGCTTGTAGcCtCATC
-## &gt;locus1000
-## AAGTTGCAGATTGCTGGCTTGTGGAATGGGGACCCTGCCCTACCTGTGTCCTGTAATTTGGGGTATGCCATAATAGCTTCCATGTCTGCAGAAGCCCATGTGGGCCAAACAACTAAATCAGCTTATTACCTCTGGNNNNNNNNNNGGGTTTGAAAAAGTATGGCCACTTGTCCAAGTACAGAATCATTAGGTTGGCTCCCTTATTGAAATCAgattGATTGGTTGGTTGTGCGTTGAAAGGGCTCCAAAAGGTTGGGCCCAACTTTATTCGAGAATGGCTTCAGCCACC
-## &gt;locus10000
-## ATGGTGAGAGGGGACAGGGTCACTCCGGCCTCTGGCAGGGACACTGTCGCAATGGGGGCTGATTCTGACGAGTCACTACAGGGAAATAGCAGCACCATCAATGTATAAGCACCACGCTGGGGGGGGGGGTTTATCCGNNNNNNNNNNAGGACCCGCTGGGCCTCAACAGTTTTGGCAGACAGGTACAGAGCTTCAGAGGGGCCGTGGGGAAGAGGGTATGGTGGGGCTTCTTGAAGGCCAGGTTTCAGCTGTTTACCAGGTCACCTTTATTGATTAGTTGATGCCACC</code></pre>
+<pre><code>&gt;locus1
+TATGTAAAACCCCCTCAGTGTTGTTGTCAATGTTGTCCCAAATTACATAGTGATGTCCAGCAAATGGATTAGCTACTATTTTGATCTTGTAAGAGGATTTGTTGTAGGCTTTACATCGAGCACGTGAGAAAAAGCNNNNNNNNNNGGATCAGAGTATCATGTAGGCTGGGGGCTCTAGTAACACTGAAGGACATTGACAGAGGTACTAACCTATAGTAGCTAATATCGGGTCAGTACGCAGAATAGGCCAATGTTTAGAGATGCAGCTCCTGAATATATTTCtCATC
+&gt;locus10
+ATTGATAGTATTTTGCGATGGTAAATACACGAGCAAAAAAGAAAATGGCCAGATCTCGAACCCAGCCGAATAGTACACCTAGGTCTGCTTTACAGCTCTCATTATTCAGTTTTGGCATGCAAAAAGGGGAGCTGNNNNNNNNNNAACAATCGGAGCTACTTTACATAATGATGAGACGACTCCCTCCATTGATCTCCCTGAGCAAACTGGGTGCCCTGCTAATGTTGATTTATCTGTGACAGAAAGTGAAAGTACCAACGATGACCTAAATAATGTTCCACCACC
+&gt;locus100
+TGATATATGACGAGACTGTCTCGTCATTAGCACTTAAGGGGTTAAAGAAAAAATATTGTATGGTTGCTAATTATGTTCATAAAAATCAAACGCCCCACAGAACCTGTAGAAACCATGTAAAAACAGTTGTTTATNNNNNNNNNNGTGGTAGATGGTGAGGGATTAGGGGAAGAAAGTCAAAAACCTAGGGGTGTCTTGTATTTTAGACGTTCAATGGTTCATTGTCTTTTAACATTGCCTACCACCGAAACTGGTATGTTGAgatGGTACGCTAATGCTTGTAGcCtCATC
+&gt;locus1000
+AAGTTGCAGATTGCTGGCTTGTGGAATGGGGACCCTGCCCTACCTGTGTCCTGTAATTTGGGGTATGCCATAATAGCTTCCATGTCTGCAGAAGCCCATGTGGGCCAAACAACTAAATCAGCTTATTACCTCTGGNNNNNNNNNNGGGTTTGAAAAAGTATGGCCACTTGTCCAAGTACAGAATCATTAGGTTGGCTCCCTTATTGAAATCAgattGATTGGTTGGTTGTGCGTTGAAAGGGCTCCAAAAGGTTGGGCCCAACTTTATTCGAGAATGGCTTCAGCCACC
+&gt;locus10000
+ATGGTGAGAGGGGACAGGGTCACTCCGGCCTCTGGCAGGGACACTGTCGCAATGGGGGCTGATTCTGACGAGTCACTACAGGGAAATAGCAGCACCATCAATGTATAAGCACCACGCTGGGGGGGGGGGTTTATCCGNNNNNNNNNNAGGACCCGCTGGGCCTCAACAGTTTTGGCAGACAGGTACAGAGCTTCAGAGGGGCCGTGGGGAAGAGGGTATGGTGGGGCTTCTTGAAGGCCAGGTTTCAGCTGTTTACCAGGTCACCTTTATTGATTAGTTGATGCCACC</code></pre>
+<div class="alert alert-info">
+<p><strong>Discussion:</strong> How is this formatted? Where did R1 and R2 data end up?</p>
+</div>
 <p>Create a new parameters file here.</p>
 <pre class="bash"><code>cp params-ubrucei_denovo.txt params-ubrucei_reference.txt</code></pre>
 <p>We should then alter the following parameters:</p>
@@ -1794,7 +1812,104 @@ U43      7      37500                37500           11010              1078    
 <li><code>[5] [assembly_method]</code> : change this parameter to <code>reference</code></li>
 <li><code>[6] [reference_sequence]</code> : change this parameter to <code>../reference/ubrucei_pseudoreference.fasta</code></li>
 </ul>
+<p>Now, we’ll run this whole assembly, rather than break it down step-by-step like before. This should run relatively quickly, if you want to follow along.</p>
 <pre class="bash"><code>ipyrad -p params-ubrucei_reference.txt -s 1234567</code></pre>
+<p>Once it finishes, let’s look at the same summary statistics file.</p>
+<pre><code>
+
+## The number of loci caught by each filter.
+## ipyrad API location: [assembly].stats_dfs.s7_filters
+
+                            total_filters  applied_order  retained_loci
+total_prefiltered_loci                805              0            805
+filtered_by_rm_duplicates               0              0            805
+filtered_by_max_indels                  4              4            801
+filtered_by_max_snps                    0              0            801
+filtered_by_max_shared_het             11             11            790
+filtered_by_min_sample                151            148            642
+filtered_by_max_alleles                 3              1            641
+total_filtered_loci                   641              0            641
+
+
+## The number of loci recovered for each Sample.
+## ipyrad API location: [assembly].stats_dfs.s7_samples
+
+     sample_coverage
+U03              545
+U04              535
+U05              548
+U19              532
+U20              527
+U21              546
+U23              546
+U24              540
+U25              533
+U41              433
+U42              441
+U43              507
+
+
+## The number of loci for which N taxa have data.
+## ipyrad API location: [assembly].stats_dfs.s7_loci
+
+    locus_coverage  sum_coverage
+1                0             0
+2                0             0
+3                0             0
+4                0             0
+5               42            42
+6               46            88
+7               49           137
+8               45           182
+9               60           242
+10              86           328
+11             112           440
+12             201           641
+
+
+## The distribution of SNPs (var and pis) per locus.
+## var = Number of loci with n variable sites (pis + autapomorphies)
+## pis = Number of loci with n parsimony informative site (minor allele in &gt;1 sample)
+## ipyrad API location: [assembly].stats_dfs.s7_snps
+
+    var  sum_var  pis  sum_pis
+0   357        0  430        0
+1   128      128   99       99
+2    55      238   45      189
+3    38      352   30      279
+4    18      424   11      323
+5    11      479    9      368
+6     9      533    7      410
+7    12      617    5      445
+8     2      633    1      453
+9     6      687    3      480
+10    1      697    1      490
+11    0      697    0      490
+12    0      697    0      490
+13    2      723    0      490
+14    0      723    0      490
+15    2      753    0      490
+
+
+## Final Sample stats summary
+
+     state  reads_raw  reads_passed_filter  refseq_mapped_reads  refseq_unmapped_reads  clusters_total  clusters_hidepth  hetero_est  error_est  reads_consens  loci_in_assembly
+U03      7      37500                37500                 6122                  17516             915               621    0.002885   0.001820            613               545
+U04      7      37500                37500                 5714                  18432             915               591    0.002638   0.001949            583               535
+U05      7      37500                37500                 5876                  17465             917               623    0.001681   0.001738            617               548
+U19      7      37500                37500                 5630                  17369             899               590    0.002689   0.001551            584               532
+U20      7      37500                37500                 5819                  17558             903               583    0.002401   0.001862            577               527
+U21      7      37500                37500                 6074                  17016             902               617    0.003093   0.002015            606               546
+U23      7      37500                37500                 5806                  17724             909               608    0.002462   0.001732            602               546
+U24      7      37500                37500                 5540                  18442             903               603    0.001732   0.001702            596               540
+U25      7      37500                37500                 5954                  18115             906               584    0.001774   0.001938            580               533
+U41      7      37500                37500                 6583                  18601             878               477    0.002251   0.002163            472               433
+U42      7      37500                37500                 6629                  18202             899               494    0.001921   0.002286            489               441
+U43      7      37500                37500                 5818                  17347             909               558    0.003145   0.002266            549               507</code></pre>
+<div class="alert alert-info">
+<p><strong>Discussion:</strong> Compare and contrast these results to those from the de novo assembly. What can explain the differences? It might be worth reflecting back upon what exactly RADcap data are.</p>
+</div>
+<p>We’ve finished our assemblies! <a href="https://twpierson.github.io/nres721_popgen_phylo/">Next week</a>, we’ll conduct some basic population genomic and phylogenomic analyses to see what we can learn from these data.</p>
 </div>
 
 
@@ -1843,7 +1958,7 @@ $(document).ready(function ()  {
 
     // establish options
     var options = {
-      selectors: "h1,h2",
+      selectors: "h1,h2,h3",
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {

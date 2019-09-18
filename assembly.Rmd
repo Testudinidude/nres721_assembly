@@ -3,7 +3,7 @@ title: "RADseq data assembly in `ipyrad`"
 output: 
   html_document:
     toc: true
-    toc_depth: 2
+    toc_depth: 3
     toc_float: true
 knit: (function(input_file, encoding) {
   out_dir <- 'docs';
@@ -79,6 +79,7 @@ This is the file in which you can tweak a number of assembly parameters. See [he
 
 Next, we'll assemble the data. This whole process isn't too computationally-intensive (i.e., it took ~40 minutes on my 16 GB RAM, 4-core Macbook), but we might not want to wait quite that long. Don't worry—there is an opportunity to assemble data in real-time later in this tutorial.
 
+### steps 1 & 2
 We'll do this first assembly step-by-step and talk about the output. First, we'll run step 1.
 
 ```{bash eval = FALSE}
@@ -103,6 +104,7 @@ This step filters and edits reads, using thresholds set in the parameters file. 
 cat ipyrad_files/ubrucei_denovo_edits/s2_rawedit_stats.txt
 ```
 
+### step 3
 Next, we'll run step 3. This is the within-sample clustering step, in which the reads are compared against each other, clustered based on similarity into "loci", and then aligned. This is a relatively computationally intensive step.
 
 ```{bash eval = FALSE}
@@ -115,18 +117,21 @@ Once completed, we can view the results of this step in the `ubrucei_denovo_clus
 cat ipyrad_files/ubrucei_denovo_clust_0.85/s3_cluster_stats.txt
 ```
 
+### steps 4 & 5
 Next, we'll run steps 4 and 5 together. These steps estimate sequencing error rates, heterozygosity, and call consensus sequences for each individual.
 
 ```{bash eval = FALSE}
 ipyrad -p params-ubrucei_denovo.txt -s 45
 ```
 
+### step 6
 We'll skip over the results from this step and proceed immediately to step 6. This is another "clustering" step, but instead of clustering reads within individuals, we're clustering loci among individuals. With many samples, this step can be computationally intensive, but it should run quite quickly for us.
 
 ```{bash eval = FALSE}
 ipyrad -p params-ubrucei_denovo.txt -s 6
 ```
 
+### step 7
 Finally, we'll run step 7, in which loci are catalogued, and data are output into a variety of formats (e.g., VCF, PHYLIP, Structure, etc.) for downstream analysis. 
 
 ```{bash eval = FALSE}
@@ -143,7 +148,7 @@ cat ipyrad_files/ubrucei_denovo_outfiles/ubrucei_denovo_stats.txt
   <strong>Discussion:</strong> Examine these summary statistics. At what steps are loci being filtered out? Is this indicative of any problems with our analysis or data?
 </div>
 
-## Reference assembly
+## Reference-based assembly
 Although we don't want to use a full genome assembly as a reference genome, these RADcap data provide us with another opportunity for assembly: a "pseudo-reference" genome. To understand this, it's worth thinking a bit about what the RADcap data are. We created 3RAD libraries—each of which probably contained hundreds of thousands of loci—for each individual, but then we conducted a "sequence capture" reaction to enrich them for a pre-selected subset of 1000 loci. So ideally, these reads are mostly from those 1000 loci. Rather than assemble these *de novo*, if we have a "reference" sequence for each those 1000 loci, we can just assemble against those!
 
 <div class="alert alert-info">
@@ -152,9 +157,13 @@ Although we don't want to use a full genome assembly as a reference genome, thes
 
 We can peek at this pseudo-reference—formatted as a FASTA file—here:
 
-```{bash, eval = TRUE}
+```{bash, eval = TRUE, comment = NA}
 head -n 10 reference/ubrucei_pseudoreference.fasta
 ```
+
+<div class="alert alert-info">
+  <strong>Discussion:</strong> How is this formatted? Where did R1 and R2 data end up?
+</div>
 
 Create a new parameters file here. 
 
@@ -168,6 +177,20 @@ We should then alter the following parameters:
 * `[5] [assembly_method]` : change this parameter to `reference`
 * `[6] [reference_sequence]` : change this parameter to `../reference/ubrucei_pseudoreference.fasta`
 
+Now, we'll run this whole assembly, rather than break it down step-by-step like before. This should run relatively quickly, if you want to follow along.
+
 ```{bash, eval = FALSE}
 ipyrad -p params-ubrucei_reference.txt -s 1234567
 ```
+
+Once it finishes, let's look at the same summary statistics file. 
+
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/ubrucei_reference_outfiles/ubrucei_reference_stats.txt
+```
+
+<div class="alert alert-info">
+  <strong>Discussion:</strong> Compare and contrast these results to those from the de novo assembly. What can explain the differences? It might be worth reflecting back upon what exactly RADcap data are.
+</div>
+
+We've finished our assemblies! [Next week](https://twpierson.github.io/nres721_popgen_phylo/), we'll conduct some basic population genomic and phylogenomic analyses to see what we can learn from these data.
