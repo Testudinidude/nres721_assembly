@@ -1,5 +1,10 @@
 ---
 title: "RADseq data assembly in `ipyrad`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float: true
 knit: (function(input_file, encoding) {
   out_dir <- 'docs';
   rmarkdown::render(input_file,
@@ -7,7 +12,6 @@ knit: (function(input_file, encoding) {
  output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
 author: "Todd W. Pierson"
 date: "16 October 2019"
-output: html_document
 ---
 <style>
 pre code, pre, code {
@@ -33,6 +37,7 @@ setwd("/Volumes/G-DRIVE/Dropbox/Teaching/2019_NRES_721/nres721_assembly")
   <strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in `ipyrad` [`(https://ipyrad.readthedocs.io/)`](https://ipyrad.readthedocs.io/)for an in-class demonstration, not to be a comprehensive guide to doing this for research purposes. If you wish to follow along, please install the latest version of `ipyrad`; I have written this using `v0.7.30`. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run `ipyrad` through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We'll return to `R` for downstream analyses!
 </div>
 
+## Introduction 
 In this tutorial, we'll practice assembling RADseq-style data. Our objectives are to:
 
 1) understand the general concepts re: how `ipyrad` assembles data
@@ -52,6 +57,7 @@ ls ./data/*
 
 There are a total of 24 files, consisting of a R1 and R2 file for each of the nine samples. Samples U03--U05 come from one collection locality, U19--U21 from a second, U23--U25 from a third, and U41--U43 from a fourth. These data have already been demultiplexed and "decloned" (i.e., PCR duplicates removed); the data for each sample has been subsetted down to 37,500 reads for consistently and manageability in this tutorial. 
 
+## De novo assembly
 There are two general ways in which we can assembled these data: de novo and using a reference genome. In a *de novo* assembly, reads are clustered and aligned against other reads, and no reference genome is required. This is really great for non-model organisms for which reference genomes don't exist! For example, in our case, there does not exist a full reference genome for any close relative of *Urspelerpes*; in fact, because salamanders have very large genomes, only one chromosome-level genome assembly exists ([the 32 Gb axolotl genome](https://genome.cshlp.org/content/29/2/317.long)). For our purposes today, we're going to assembly these data *de novo* ([but see the final tutorial for an example using an assembled reference genome!](https://twpierson.github.io/nres721_genome/)).
 
 <div class="alert alert-info">
@@ -137,7 +143,7 @@ cat ipyrad_files/ubrucei_denovo_outfiles/ubrucei_denovo_stats.txt
   <strong>Discussion:</strong> Examine these summary statistics. At what steps are loci being filtered out? Is this indicative of any problems with our analysis or data?
 </div>
 
-
+## Reference assembly
 Although we don't want to use a full genome assembly as a reference genome, these RADcap data provide us with another opportunity for assembly: a "pseudo-reference" genome. To understand this, it's worth thinking a bit about what the RADcap data are. We created 3RAD libraries—each of which probably contained hundreds of thousands of loci—for each individual, but then we conducted a "sequence capture" reaction to enrich them for a pre-selected subset of 1000 loci. So ideally, these reads are mostly from those 1000 loci. Rather than assemble these *de novo*, if we have a "reference" sequence for each those 1000 loci, we can just assemble against those!
 
 <div class="alert alert-info">
