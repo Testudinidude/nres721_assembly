@@ -24,7 +24,7 @@ pre code, pre, code {
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-options(width=200)
+options(width = 200, height = 50)
 #```{r setup, include=FALSE}
 #knitr::opts_chunk$set(echo = TRUE, width.cutoff=120)
 ```
@@ -58,7 +58,11 @@ ls ./data/*
 There are a total of 24 files, consisting of a R1 and R2 file for each of the nine samples. Samples U03--U05 come from one collection locality, U19--U21 from a second, U23--U25 from a third, and U41--U43 from a fourth. These data have already been demultiplexed and "decloned" (i.e., PCR duplicates removed); the data for each sample has been subsetted down to 37,500 reads for consistently and manageability in this tutorial. 
 
 ## De novo assembly
-There are two general ways in which we can assembled these data: de novo and using a reference genome. In a *de novo* assembly, reads are clustered and aligned against other reads, and no reference genome is required. This is really great for non-model organisms for which reference genomes don't exist! For example, in our case, there does not exist a full reference genome for any close relative of *Urspelerpes*; in fact, because salamanders have very large genomes, only one chromosome-level genome assembly exists ([the 32 Gb axolotl genome](https://genome.cshlp.org/content/29/2/317.long)). For our purposes today, we're going to assembly these data *de novo* ([but see the final tutorial for an example using an assembled reference genome!](https://twpierson.github.io/nres721_genome/)).
+<div class="alert alert-danger">
+  <strong>Note:</strong> Today, we are going to use `ipyrad` to "call" genotypes. Some studies (e.g., [Gompert and Buerkle 2011](https://www.genetics.org/content/187/3/903?ijkey=db1c78ecc5d6122e25f7ddb64c0447c2fa3d6b32&keytype2=tf_ipsecsha); [Fumagalli et al. 2013](https://www.genetics.org/content/195/3/979)) have demonstrated the pitfalls of this approach and instead strongly encourage the use of "genotype likelihoods", which allow error in estimating allele frequences to propogate through downstream analyses. For the sake of simplicity today, we will be calling (and later, using) called genotypes.
+</div>
+
+There are two general ways in which we can assemble these data in `ipyrad`: de novo and using a reference genome. In a *de novo* assembly, reads are clustered and aligned against other reads, and no reference genome is required. This is really great for non-model organisms for which reference genomes don't exist! For example, in our case, there does not exist a full reference genome for any close relative of *Urspelerpes*; in fact, because salamanders have very large genomes, only one chromosome-level genome assembly exists ([the 32 Gb axolotl genome](https://genome.cshlp.org/content/29/2/317.long)). For our purposes today, we're going to assembly these data *de novo* ([but see the final tutorial for an example using an assembled reference genome!](https://twpierson.github.io/nres721_genome/)).
 
 <div class="alert alert-info">
   <strong>Discussion:</strong> What might the advantages be of assembling against a reference genome?
