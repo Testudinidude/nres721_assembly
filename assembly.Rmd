@@ -34,14 +34,17 @@ setwd("/Volumes/G-DRIVE/Dropbox/Teaching/2019_NRES_721/nres721_assembly")
 ```
 
 <div class="alert alert-danger">
-  <strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in `ipyrad` [`(https://ipyrad.readthedocs.io/)`](https://ipyrad.readthedocs.io/)for an in-class demonstration, not to be a comprehensive guide to doing this for research purposes. If you wish to follow along, please install the latest version of `ipyrad`; I have written this using `v0.7.30`. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run `ipyrad` through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We'll return to `R` for downstream analyses!
+  <strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in [`ipyrad`](https://ipyrad.readthedocs.io/) for an in-class demonstration, not to be a comprehensive guide to doing this for research purposes. Students: if you wish to follow along, please install the latest version of `ipyrad`; I have written this tutorial using `v0.7.30`. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run `ipyrad` through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We'll return to `R` for downstream analyses! **If you wish to follow along, you can download all of the data we'll use from the `/data` directory in the Github repository [here](https://github.com/twpierson/nres721_assembly).**
 </div>
 
 ## Introduction 
+
+Reduced-representation genomic sequencing (e.g., RADseq) is a popular method for generating large-scale datasets for population genomic and phylogenomic studies, especially for non-model organisms without reference genomes. The sequencing reads generated from these methods come from thousands to millions of different portions of the genome, and there are numerous methods for "assembling" these data. Typically, this means clustering sequences (either *de novo* or against a reference genome), aligning sequences, and callling SNPs.
+
 In this tutorial, we'll practice assembling RADseq-style data. Our objectives are to:
 
 1) understand the general concepts re: how `ipyrad` assembles data
-2) compare results from a de novo and reference-based assembly
+2) compare results from a *de novo* and reference-based assembly
 3) produce output files for use in downstream analyses
 
 To do this, we'll use data from the patch-nosed salamander (*Urspelerpes brucei*). This is a tiny (~25 mm) lungless salamander endemic to just ~ 20 km^2^ in Georgia and South Carolina. Aren't they beautiful? 
@@ -49,7 +52,7 @@ To do this, we'll use data from the patch-nosed salamander (*Urspelerpes brucei*
 <center>![](https://live.staticflickr.com/277/19325478625_f58f9b7b15_b.jpg){ width=40% }</center>
 
 \
-Today, we're going to use a small subset of a larger, unpublished RADcap [(Hoffberg et al. 2016)](https://onlinelibrary.wiley.com/doi/abs/10.1111/1755-0998.12566) dataset generated from individuals sampled across the small distribution of this species. This subset contains data from twelve individuals: three each from four collection localities. We can see these files in our `data` directory:
+Today, we're going to use a small subset of a larger, unpublished RADcap [(Hoffberg et al. 2016)](https://onlinelibrary.wiley.com/doi/abs/10.1111/1755-0998.12566) dataset generated from individuals sampled across the small distribution of this species. This subset contains data from twelve individuals: three each from four collection localities. We can see these files in our `\data` directory:
 
 ```{bash, comment=NA}
 ls ./data/*
@@ -57,18 +60,18 @@ ls ./data/*
 
 There are a total of 24 files, consisting of a R1 and R2 file for each of the nine samples. Samples U03--U05 come from one collection locality, U19--U21 from a second, U23--U25 from a third, and U41--U43 from a fourth. These data have already been demultiplexed and "decloned" (i.e., PCR duplicates removed); the data for each sample has been subsetted down to 37,500 reads for consistently and manageability in this tutorial. 
 
-## De novo assembly
+## *De novo* assembly
 <div class="alert alert-danger">
-  <strong>Note:</strong> Today, we are going to use `ipyrad` to "call" genotypes. Some studies (e.g., [Gompert and Buerkle 2011](https://www.genetics.org/content/187/3/903?ijkey=db1c78ecc5d6122e25f7ddb64c0447c2fa3d6b32&keytype2=tf_ipsecsha); [Fumagalli et al. 2013](https://www.genetics.org/content/195/3/979)) have demonstrated the pitfalls of this approach and instead strongly encourage the use of "genotype likelihoods", which allow error in estimating allele frequences to propogate through downstream analyses. For the sake of simplicity today, we will be calling (and later, using) called genotypes.
+  <strong>Note:</strong> Today, we are going to use `ipyrad` to "call" genotypes. Some studies (e.g., [Gompert and Buerkle 2011](https://www.genetics.org/content/187/3/903?ijkey=db1c78ecc5d6122e25f7ddb64c0447c2fa3d6b32&keytype2=tf_ipsecsha); [Fumagalli et al. 2013](https://www.genetics.org/content/195/3/979)) have demonstrated the pitfalls of definitive genotype calling and instead strongly encourage the use of "genotype likelihoods", which allow error in estimating genotypes to propogate through downstream analyses. For the sake of simplicity today, we will be calling (and later, using) called genotypes.
 </div>
 
-There are two general ways in which we can assemble these data in `ipyrad`: de novo and using a reference genome. In a *de novo* assembly, reads are clustered and aligned against other reads, and no reference genome is required. This is really great for non-model organisms for which reference genomes don't exist! For example, in our case, there does not exist a full reference genome for any close relative of *Urspelerpes*; in fact, because salamanders have very large genomes, only one chromosome-level genome assembly exists ([the 32 Gb axolotl genome](https://genome.cshlp.org/content/29/2/317.long)). For our purposes today, we're going to assembly these data *de novo* ([but see the final tutorial for an example using an assembled reference genome!](https://twpierson.github.io/nres721_genome/)).
+There are two general ways in which we can assemble these data in `ipyrad`: *de *novo and using a reference genome. In a *de novo* assembly, reads are clustered and aligned against other reads, and no reference genome is required. This is really great for non-model organisms for which reference genomes don't exist! For example, in our case, there does not exist a full reference genome for any close relative of *Urspelerpes*; in fact, because salamanders have very large genomes, only one chromosome-level genome assembly exists ([the 32 Gb axolotl genome](https://genome.cshlp.org/content/29/2/317.long)). For our purposes today, we're going to start by assembling these data *de novo* ([but see the final tutorial for an example using an assembled reference genome!](https://twpierson.github.io/nres721_genome/)).
 
 <div class="alert alert-info">
   <strong>Discussion:</strong> What might the advantages be of assembling against a reference genome?
 </div>
 
-Let's create a new assembly by typing `ipyrad -n template`. Let's look at this template `ipyrad` parameters file:
+We'll create a new assembly by typing `ipyrad -n template`. Then, look at this template `ipyrad` parameters file:
 
 ```{bash comment=NA}
 cat ipyrad_files/params-template.txt
@@ -79,9 +82,12 @@ This is the file in which you can tweak a number of assembly parameters. See [he
 * `[0] [assembly_name]` : change this parameter to `ubrucei_denovo`
 * `[2] [raw_fastq_path]` : change this parameter to `./data/*fq.gz`
 * `[7] [datatype]` : change this parameter to `pairddrad` ; although these are RADcap data and thus, `pair3rad` might seem most appropriate, we have already independently "decloned" the reads and will treat them as `pairddrad` data for the purposes of this tutorial
-* `[8] [restriction_overhang]` : change this parameter to ...
+* `[8] [restriction_overhang]` : change this parameter to "CTAGA,AATTC,CATAGC"
+* `[21] [min_samples_locus]` : change this parameter to "5"
+* `[25] [trim_reads]` : change this parameter to "0, 120, 0, 120"
+* `[27] [output_formats]` : change this parameter to "*"
 
-Next, we'll assemble the data. This whole process isn't too computationally-intensive (i.e., it took ~40 minutes on my 16 GB RAM, 4-core Macbook), but we might not want to wait quite that long. Don't worry—there is an opportunity to assemble data in real-time later in this tutorial.
+Then, save the file as `params-ubrucei_denovo.txt`. Next, we'll assemble the data. This whole process isn't too computationally-intensive (i.e., it took ~40 minutes on my 16 GB RAM, 4-core Macbook), but we might not want to wait quite that long. Don't worry—there is an opportunity to assemble data in real-time later in this tutorial. Below, we'll break this down step-by-step.
 
 ### steps 1 & 2
 We'll do this first assembly step-by-step and talk about the output. First, we'll run step 1.
@@ -121,15 +127,19 @@ Once completed, we can view the results of this step in the `ubrucei_denovo_clus
 cat ipyrad_files/ubrucei_denovo_clust_0.85/s3_cluster_stats.txt
 ```
 
+<div class="alert alert-info">
+  <strong>Discussion:</strong> What can you glean from this output? What is the distribution of our sequencing coverage?
+</div>
+
 ### steps 4 & 5
-Next, we'll run steps 4 and 5 together. These steps estimate sequencing error rates, heterozygosity, and call consensus sequences for each individual.
+Next, we'll run steps 4 and 5 together. These steps estimate sequencing error rates, estimate genome-wide heterozygosity, and call consensus sequences for each individual for use in across-sample clustering.
 
 ```{bash eval = FALSE}
 ipyrad -p params-ubrucei_denovo.txt -s 45
 ```
 
 ### step 6
-We'll skip over the results from this step and proceed immediately to step 6. This is another "clustering" step, but instead of clustering reads within individuals, we're clustering loci among individuals. With many samples, this step can be computationally intensive, but it should run quite quickly for us.
+We'll skip over the results from steps 4 & 5 and proceed immediately to step 6. This is another "clustering" step, but instead of clustering reads within individuals, we're clustering loci across individuals. With many samples, this step can be computationally intensive, but it should run quite quickly for us.
 
 ```{bash eval = FALSE}
 ipyrad -p params-ubrucei_denovo.txt -s 6
@@ -166,10 +176,10 @@ head -n 10 reference/ubrucei_pseudoreference.fasta
 ```
 
 <div class="alert alert-info">
-  <strong>Discussion:</strong> How is this formatted? Where did R1 and R2 data end up?
+  <strong>Discussion:</strong> How is this formatted? Where did R1 and R2 data end up, and what does this tell you about the size of the loci?
 </div>
 
-Create a new parameters file here. 
+Create a new parameters file here by copying our *de novo* parameters file.
 
 ```{bash, eval = FALSE}
 cp params-ubrucei_denovo.txt params-ubrucei_reference.txt
@@ -194,7 +204,7 @@ cat ipyrad_files/ubrucei_reference_outfiles/ubrucei_reference_stats.txt
 ```
 
 <div class="alert alert-info">
-  <strong>Discussion:</strong> Compare and contrast these results to those from the de novo assembly. What can explain the differences? It might be worth reflecting back upon what exactly RADcap data are.
+  <strong>Discussion:</strong> Compare and contrast these results to those from the *de novo* assembly. What can explain the differences? It might be worth reflecting back upon what exactly RADcap data are.
 </div>
 
 We've finished our assemblies! [Next week](https://twpierson.github.io/nres721_popgen_phylo/), we'll conduct some basic population genomic and phylogenomic analyses to see what we can learn from these data.
