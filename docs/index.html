@@ -1522,7 +1522,6 @@ pre code, pre, code {
 <div class="alert alert-danger">
 <p><strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in <a href="https://ipyrad.readthedocs.io/"><code>ipyrad</code></a> for an in-class demonstration in UNR’s NRES 721, not to be a comprehensive guide to doing this for research purposes.</p>
 <p><strong>Students: if you wish to follow along, please install the latest version of <code>ipyrad</code> (directions <a href="https://ipyrad.readthedocs.io/en/latest/3-installation.html">here</a>); I have written this tutorial using <code>v0.7.30</code></strong>. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run <code>ipyrad</code> through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We’ll return to <code>R</code> for downstream analyses!</p>
-<p><strong>If you do wish to follow along, you can download all of the data we’ll use from the <code>/data</code> directory in the Github repository <a href="https://github.com/twpierson/nres721_assembly">here</a>.</strong> One easy way to download those data is by typing the following command in your Terminal window: <code>svn checkout https://github.com/twpierson/nres721_assembly/trunk/data</code></p>
 </div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
@@ -1541,7 +1540,7 @@ pre code, pre, code {
 </p>
 <p>Let’s jump right in and start assembling data. If you haven’t already, navigate to a local directory you’d like to work from:</p>
 <pre class="bash"><code>cd [your working directory]</code></pre>
-<p>Next, we want to download the data we’ll use. If you’ve already done this (e.g., with the directions in the red box at the top of this page), you can just move that <code>\data</code> directory to your working directory. If you haven’t, no problem! We can download those data now. If you’re in your working directory, the following command will download our data into a <code>\data</code> directory within it:</p>
+<p>Next, we want to download the data we’ll use. If you’re in your working directory, the following command will download our data into a <code>\data</code> directory within it:</p>
 <pre class="bash"><code>svn checkout https://github.com/twpierson/nres721_assembly/trunk/data</code></pre>
 <p>These data are a small subset of a larger, unpublished RADcap <a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/1755-0998.12566">(Hoffberg et al. 2016)</a> dataset generated from individuals sampled across the small distribution of this <em>Urspelerpes</em>. This subset contains data from twelve individuals: three each from four collection localities. We can see these files in our <code>\data</code> directory:</p>
 <pre class="bash"><code>ls ./data/*</code></pre>

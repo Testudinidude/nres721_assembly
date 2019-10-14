@@ -37,8 +37,6 @@ setwd("/Volumes/G-DRIVE/Dropbox/Teaching/2019_NRES_721/nres721_assembly")
   <strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in [`ipyrad`](https://ipyrad.readthedocs.io/) for an in-class demonstration in UNR's NRES 721, not to be a comprehensive guide to doing this for research purposes. 
   
 **Students: if you wish to follow along, please install the latest version of `ipyrad` (directions [here](https://ipyrad.readthedocs.io/en/latest/3-installation.html)); I have written this tutorial using `v0.7.30`**. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run `ipyrad` through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We'll return to `R` for downstream analyses! 
-  
-**If you do wish to follow along, you can download all of the data we'll use from the `/data` directory in the Github repository [here](https://github.com/twpierson/nres721_assembly).** One easy way to download those data is by typing the following command in your Terminal window: `svn checkout https://github.com/twpierson/nres721_assembly/trunk/data`
 </div>
 
 ## Introduction 
@@ -63,7 +61,7 @@ Let's jump right in and start assembling data. If you haven't already, navigate 
 cd [your working directory]
 ```
 
-Next, we want to download the data we'll use. If you've already done this (e.g., with the directions in the red box at the top of this page), you can just move that `\data` directory to your working directory. If you haven't, no problem! We can download those data now. If you're in your working directory, the following command will download our data into a `\data` directory within it:
+Next, we want to download the data we'll use. If you're in your working directory, the following command will download our data into a `\data` directory within it:
 
 ```{bash, eval = FALSE}
 svn checkout https://github.com/twpierson/nres721_assembly/trunk/data
