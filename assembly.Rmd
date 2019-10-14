@@ -231,7 +231,7 @@ We should then alter the following parameters:
 
 * `[0] [assembly_name]` : change this parameter to `ubrucei_reference`
 * `[5] [assembly_method]` : change this parameter to `reference`
-* `[6] [reference_sequence]` : change this parameter to `../reference/ubrucei_pseudoreference.fasta`
+* `[6] [reference_sequence]` : change this parameter to `reference/ubrucei_pseudoreference.fasta`
 
 Now, we'll run this whole assembly, rather than break it down step-by-step like before. This should run relatively quickly, if you want to follow along.
 
