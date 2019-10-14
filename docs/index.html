@@ -1615,7 +1615,7 @@ p, s, v                        ## [27] [output_formats]: Output formats (see doc
                                ## [28] [pop_assign_file]: Path to population assignment file</code></pre>
 <p>This is the file in which you can tweak a number of assembly parameters. See <a href="https://ipyrad.readthedocs.io/parameters.html">here</a> for a thorough description of what each of these means. For our purposes, we only need to change a few. In your favorite text editor, open <code>params-ubrucei_denovo.txt</code> and change the following lines:</p>
 <ul>
-<li><code>[2] [raw_fastq_path]</code> : change this parameter to <code>./data/*fq.gz</code></li>
+<li><code>[2] [raw_fastq_path]</code> : change this parameter to <code>data/*fq.gz</code></li>
 <li><code>[7] [datatype]</code> : change this parameter to <code>pairddrad</code> ; although these are RADcap data and thus, <code>pair3rad</code> might seem most appropriate, we have already independently demultiplexed and “decloned” the reads and will treat them as <code>pairddrad</code> data for the purposes of this tutorial</li>
 <li><code>[8] [restriction_overhang]</code> : change this parameter to “CTAGA,AATTC,CATAGC”</li>
 <li><code>[21] [min_samples_locus]</code> : change this parameter to “5”</li>
@@ -1832,7 +1832,7 @@ ATGGTGAGAGGGGACAGGGTCACTCCGGCCTCTGGCAGGGACACTGTCGCAATGGGGGCTGATTCTGACGAGTCACTACA
 <ul>
 <li><code>[0] [assembly_name]</code> : change this parameter to <code>ubrucei_reference</code></li>
 <li><code>[5] [assembly_method]</code> : change this parameter to <code>reference</code></li>
-<li><code>[6] [reference_sequence]</code> : change this parameter to <code>../reference/ubrucei_pseudoreference.fasta</code></li>
+<li><code>[6] [reference_sequence]</code> : change this parameter to <code>reference/ubrucei_pseudoreference.fasta</code></li>
 </ul>
 <p>Now, we’ll run this whole assembly, rather than break it down step-by-step like before. This should run relatively quickly, if you want to follow along.</p>
 <pre class="bash"><code>ipyrad -p params-ubrucei_reference.txt -s 1234567</code></pre>
