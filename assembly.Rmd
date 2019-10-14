@@ -54,7 +54,20 @@ To do this, we'll use data from the patch-nosed salamander (*Urspelerpes brucei*
 <center>![](https://live.staticflickr.com/277/19325478625_f58f9b7b15_b.jpg){ width=40% }</center>
 
 \
-Today, we're going to use a small subset of a larger, unpublished RADcap [(Hoffberg et al. 2016)](https://onlinelibrary.wiley.com/doi/abs/10.1111/1755-0998.12566) dataset generated from individuals sampled across the small distribution of this species. This subset contains data from twelve individuals: three each from four collection localities. We can see these files in our `\data` directory:
+
+Let's jump right in and start assembling data. If you haven't already, navigate to the directory you'd like to work from:
+
+```{bash, comment = NA, eval = FALSE}
+cd [your working directory]
+```
+
+Next, we want to download the data we'll use. If you've already done this (e.g., with the directions in the red box at the top of this page), you can just move that `\data` directory to your working directory. If you haven't, no problem! We can download those data now. If you're in your working directory, the following command will download our data into a `\data` directory within your current working directory:
+
+```{bash, eval = FALSE}
+svn checkout https://github.com/twpierson/nres721_assembly/trunk/data
+```
+
+These data are a small subset of a larger, unpublished RADcap [(Hoffberg et al. 2016)](https://onlinelibrary.wiley.com/doi/abs/10.1111/1755-0998.12566) dataset generated from individuals sampled across the small distribution of this *Urspelerpes*. This subset contains data from twelve individuals: three each from four collection localities. We can see these files in our `\data` directory:
 
 ```{bash, comment=NA}
 ls ./data/*
@@ -73,7 +86,13 @@ There are two general ways in which we can assemble these data in `ipyrad`: *de 
   <strong>Discussion:</strong> What might the advantages be of assembling against a reference genome?
 </div>
 
-We'll create a new assembly by typing `ipyrad -n template`. Then, look at this template `ipyrad` parameters file:
+From within our working directory, we'll create a new assembly by entering:
+
+```{bash, eval = FALSE}
+ipyrad -n template
+```
+
+Then, look at this template `ipyrad` parameters file:
 
 ```{bash comment=NA}
 cat ipyrad_files/params-template.txt
