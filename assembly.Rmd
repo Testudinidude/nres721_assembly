@@ -104,12 +104,12 @@ cat ipyrad_files/params-template.txt
 
 This is the file in which you can tweak a number of assembly parameters. See [here](https://ipyrad.readthedocs.io/parameters.html) for a thorough description of what each of these means. For our purposes, we only need to change a few. In your favorite text editor, open `params-ubrucei_denovo.txt` and change the following lines:
 
-* `[2] [raw_fastq_path]` : change this parameter to `data/*fq.gz`
+* `[4] [sorted_fastq_path]` : change this parameter to `data/*fq.gz`
 * `[7] [datatype]` : change this parameter to `pairddrad` ; although these are RADcap data and thus, `pair3rad` might seem most appropriate, we have already independently demultiplexed and "decloned" the reads and will treat them as `pairddrad` data for the purposes of this tutorial
-* `[8] [restriction_overhang]` : change this parameter to "CTAGA,AATTC,CATAGC"
-* `[21] [min_samples_locus]` : change this parameter to "5"
-* `[25] [trim_reads]` : change this parameter to "0, 120, 0, 120"
-* `[27] [output_formats]` : change this parameter to "*"
+* `[8] [restriction_overhang]` : change this parameter to `CTAGA,AATTC,CATAGC`
+* `[21] [min_samples_locus]` : change this parameter to `5`
+* `[25] [trim_reads]` : change this parameter to `0, 120, 0, 120`
+* `[27] [output_formats]` : change this parameter to `*`
 
 Then, save the file with these updates. Next, we'll assemble the data. This whole process isn't too computationally-intensive (i.e., it took ~40 minutes on my 16 GB RAM, 4-core Macbook), but we might not want to wait quite that long. Don't worry—there is an opportunity to assemble data in real-time later in this tutorial. Below, we'll break this down step-by-step. **Students in class: don't actually run any of these commands until we get to the ["Reference-based assembly"](#refassembly) section.**
 

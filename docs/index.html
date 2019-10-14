@@ -1615,12 +1615,12 @@ p, s, v                        ## [27] [output_formats]: Output formats (see doc
                                ## [28] [pop_assign_file]: Path to population assignment file</code></pre>
 <p>This is the file in which you can tweak a number of assembly parameters. See <a href="https://ipyrad.readthedocs.io/parameters.html">here</a> for a thorough description of what each of these means. For our purposes, we only need to change a few. In your favorite text editor, open <code>params-ubrucei_denovo.txt</code> and change the following lines:</p>
 <ul>
-<li><code>[2] [raw_fastq_path]</code> : change this parameter to <code>data/*fq.gz</code></li>
+<li><code>[4] [sorted_fastq_path]</code> : change this parameter to <code>data/*fq.gz</code></li>
 <li><code>[7] [datatype]</code> : change this parameter to <code>pairddrad</code> ; although these are RADcap data and thus, <code>pair3rad</code> might seem most appropriate, we have already independently demultiplexed and “decloned” the reads and will treat them as <code>pairddrad</code> data for the purposes of this tutorial</li>
-<li><code>[8] [restriction_overhang]</code> : change this parameter to “CTAGA,AATTC,CATAGC”</li>
-<li><code>[21] [min_samples_locus]</code> : change this parameter to “5”</li>
-<li><code>[25] [trim_reads]</code> : change this parameter to “0, 120, 0, 120”</li>
-<li><code>[27] [output_formats]</code> : change this parameter to &quot;*&quot;</li>
+<li><code>[8] [restriction_overhang]</code> : change this parameter to <code>CTAGA,AATTC,CATAGC</code></li>
+<li><code>[21] [min_samples_locus]</code> : change this parameter to <code>5</code></li>
+<li><code>[25] [trim_reads]</code> : change this parameter to <code>0, 120, 0, 120</code></li>
+<li><code>[27] [output_formats]</code> : change this parameter to <code>*</code></li>
 </ul>
 <p>Then, save the file with these updates. Next, we’ll assemble the data. This whole process isn’t too computationally-intensive (i.e., it took ~40 minutes on my 16 GB RAM, 4-core Macbook), but we might not want to wait quite that long. Don’t worry—there is an opportunity to assemble data in real-time later in this tutorial. Below, we’ll break this down step-by-step. <strong>Students in class: don’t actually run any of these commands until we get to the <a href="#refassembly">“Reference-based assembly”</a> section.</strong></p>
 <div id="steps-1-2" class="section level3">
