@@ -1520,12 +1520,13 @@ pre code, pre, code {
 }
 </style>
 <div class="alert alert-danger">
-<p><strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in <a href="https://ipyrad.readthedocs.io/"><code>ipyrad</code></a> for an in-class demonstration in UNR’s NRES 721, not to be a comprehensive guide to doing this for research purposes. Students: if you wish to follow along, please install the latest version of <code>ipyrad</code> (directions <a href="https://ipyrad.readthedocs.io/en/latest/3-installation.html">here</a>); I have written this tutorial using <code>v0.7.30</code>. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run <code>ipyrad</code> through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We’ll return to <code>R</code> for downstream analyses!</p>
-<p><strong>If you wish to follow along, you can download all of the data we’ll use from the <code>/data</code> directory in the Github repository <a href="https://github.com/twpierson/nres721_assembly">here</a>.</strong> One easy way to download those data is by typing the following command in your Terminal window: <code>svn checkout https://github.com/twpierson/nres721_assembly/trunk/data</code></p>
+<p><strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in <a href="https://ipyrad.readthedocs.io/"><code>ipyrad</code></a> for an in-class demonstration in UNR’s NRES 721, not to be a comprehensive guide to doing this for research purposes.</p>
+<p><strong>Students: if you wish to follow along, please install the latest version of <code>ipyrad</code> (directions <a href="https://ipyrad.readthedocs.io/en/latest/3-installation.html">here</a>); I have written this tutorial using <code>v0.7.30</code></strong>. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run <code>ipyrad</code> through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We’ll return to <code>R</code> for downstream analyses!</p>
+<p><strong>If you do wish to follow along, you can download all of the data we’ll use from the <code>/data</code> directory in the Github repository <a href="https://github.com/twpierson/nres721_assembly">here</a>.</strong> One easy way to download those data is by typing the following command in your Terminal window: <code>svn checkout https://github.com/twpierson/nres721_assembly/trunk/data</code></p>
 </div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
-<p>Reduced-representation genomic sequencing (e.g., RADseq) is a popular method for generating large-scale datasets for population genomic and phylogenomic studies, especially for non-model organisms without reference genomes. The sequencing reads generated from these methods come from thousands to millions of different portions of the genome, and there are numerous methods for “assembling” these data. Typically, this means clustering sequences (either <em>de novo</em> or against a reference genome), aligning sequences, and callling SNPs.</p>
+<p>Reduced-representation genomic sequencing (e.g., RADseq) is a popular group of methods for generating large-scale datasets for population genomic and phylogenomic studies, especially for non-model organisms without reference genomes. The sequencing reads generated from these methods come from thousands to millions of different portions of the genome, and there are numerous methods for “assembling” these data. Typically, this means clustering sequences (either <em>de novo</em> or against a reference genome), aligning sequences, and callling SNPs.</p>
 <p>In this tutorial, we’ll practice assembling RADseq-style data. Our objectives are to:</p>
 <ol style="list-style-type: decimal">
 <li>understand the general concepts re: how <code>ipyrad</code> assembles data</li>
@@ -1538,9 +1539,9 @@ pre code, pre, code {
 </center>
 <p><br />
 </p>
-<p>Let’s jump right in and start assembling data. If you haven’t already, navigate to the directory you’d like to work from:</p>
+<p>Let’s jump right in and start assembling data. If you haven’t already, navigate to a local directory you’d like to work from:</p>
 <pre class="bash"><code>cd [your working directory]</code></pre>
-<p>Next, we want to download the data we’ll use. If you’ve already done this (e.g., with the directions in the red box at the top of this page), you can just move that <code>\data</code> directory to your working directory. If you haven’t, no problem! We can download those data now. If you’re in your working directory, the following command will download our data into a <code>\data</code> directory within your current working directory:</p>
+<p>Next, we want to download the data we’ll use. If you’ve already done this (e.g., with the directions in the red box at the top of this page), you can just move that <code>\data</code> directory to your working directory. If you haven’t, no problem! We can download those data now. If you’re in your working directory, the following command will download our data into a <code>\data</code> directory within it:</p>
 <pre class="bash"><code>svn checkout https://github.com/twpierson/nres721_assembly/trunk/data</code></pre>
 <p>These data are a small subset of a larger, unpublished RADcap <a href="https://onlinelibrary.wiley.com/doi/abs/10.1111/1755-0998.12566">(Hoffberg et al. 2016)</a> dataset generated from individuals sampled across the small distribution of this <em>Urspelerpes</em>. This subset contains data from twelve individuals: three each from four collection localities. We can see these files in our <code>\data</code> directory:</p>
 <pre class="bash"><code>ls ./data/*</code></pre>
@@ -1579,12 +1580,12 @@ pre code, pre, code {
 <div class="alert alert-info">
 <p><strong>Discussion:</strong> What might the advantages be of assembling against a reference genome?</p>
 </div>
-<p>From within our working directory, we’ll create a new assembly by entering:</p>
-<pre class="bash"><code>ipyrad -n template</code></pre>
-<p>Then, look at this template <code>ipyrad</code> parameters file:</p>
-<pre class="bash"><code>cat ipyrad_files/params-template.txt</code></pre>
+<p>From within our working directory, we’ll initiate a new assembly called <code>ubrucei_denovo</code> (and thus, create a parameters file) by entering:</p>
+<pre class="bash"><code>ipyrad -n ubrucei_denovo</code></pre>
+<p>Let’s now look at this template of an <code>ipyrad</code> parameters file:</p>
+<pre class="bash"><code>cat params-ubrucei_denovo.txt</code></pre>
 <pre><code>------- ipyrad params file (v.0.7.30)-------------------------------------------
-template                       ## [0] [assembly_name]: Assembly name. Used to name output directories for assembly steps
+ubrucei_denovo                 ## [0] [assembly_name]: Assembly name. Used to name output directories for assembly steps
 ./                             ## [1] [project_dir]: Project dir (made in curdir if not present)
                                ## [2] [raw_fastq_path]: Location of raw non-demultiplexed fastq files
                                ## [3] [barcodes_path]: Location of barcodes file
@@ -1615,20 +1616,20 @@ p, s, v                        ## [27] [output_formats]: Output formats (see doc
                                ## [28] [pop_assign_file]: Path to population assignment file</code></pre>
 <p>This is the file in which you can tweak a number of assembly parameters. See <a href="https://ipyrad.readthedocs.io/parameters.html">here</a> for a thorough description of what each of these means. For our purposes, we only need to change a few. In your favorite text editor, open <code>params-ubrucei_denovo.txt</code> and change the following lines:</p>
 <ul>
-<li><code>[0] [assembly_name]</code> : change this parameter to <code>ubrucei_denovo</code></li>
 <li><code>[2] [raw_fastq_path]</code> : change this parameter to <code>./data/*fq.gz</code></li>
-<li><code>[7] [datatype]</code> : change this parameter to <code>pairddrad</code> ; although these are RADcap data and thus, <code>pair3rad</code> might seem most appropriate, we have already independently “decloned” the reads and will treat them as <code>pairddrad</code> data for the purposes of this tutorial</li>
+<li><code>[7] [datatype]</code> : change this parameter to <code>pairddrad</code> ; although these are RADcap data and thus, <code>pair3rad</code> might seem most appropriate, we have already independently demultiplexed and “decloned” the reads and will treat them as <code>pairddrad</code> data for the purposes of this tutorial</li>
 <li><code>[8] [restriction_overhang]</code> : change this parameter to “CTAGA,AATTC,CATAGC”</li>
 <li><code>[21] [min_samples_locus]</code> : change this parameter to “5”</li>
 <li><code>[25] [trim_reads]</code> : change this parameter to “0, 120, 0, 120”</li>
 <li><code>[27] [output_formats]</code> : change this parameter to &quot;*&quot;</li>
 </ul>
-<p>Then, save the file as <code>params-ubrucei_denovo.txt</code>. Next, we’ll assemble the data. This whole process isn’t too computationally-intensive (i.e., it took ~40 minutes on my 16 GB RAM, 4-core Macbook), but we might not want to wait quite that long. Don’t worry—there is an opportunity to assemble data in real-time later in this tutorial. Below, we’ll break this down step-by-step.</p>
+<p>Then, save the file with these updates. Next, we’ll assemble the data. This whole process isn’t too computationally-intensive (i.e., it took ~40 minutes on my 16 GB RAM, 4-core Macbook), but we might not want to wait quite that long. Don’t worry—there is an opportunity to assemble data in real-time later in this tutorial. Below, we’ll break this down step-by-step. <strong>Students in class: don’t actually run any of these commands until we get to the <a href="#refassembly">“Reference-based assembly”</a> section.</strong></p>
 <div id="steps-1-2" class="section level3">
 <h3>steps 1 &amp; 2</h3>
 <p>We’ll do this first assembly step-by-step and talk about the output. First, we’ll run step 1.</p>
 <pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 1</code></pre>
 <p>This step simply reads in our data files, and we can review the results in the <code>ubrucei_denovo_s1_demultiplex_stats.txt</code> file.</p>
+<pre class="bash"><code>cat ubrucei_denovo_s1_demultiplex_stats.txt</code></pre>
 <pre><code>     reads_raw
 U03      37500
 U04      37500
@@ -1645,6 +1646,7 @@ U43      37500</code></pre>
 <p>Next, we’ll run step 2.</p>
 <pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 2</code></pre>
 <p>This step filters and edits reads, using thresholds set in the parameters file. This means that we (probably) don’t need to filter data before entering <code>ipyrad</code>! We can view the results of this step in the <code>ubrucei_denovo_edits/s2_rawedit_stats.txt</code> file:</p>
+<pre class="bash"><code>cat ubrucei_denovo_edits/s2_rawedit_stats.txt</code></pre>
 <pre><code>     reads_raw  trim_adapter_bp_read1  trim_adapter_bp_read2  trim_quality_bp_read1  trim_quality_bp_read2  reads_filtered_by_Ns  reads_filtered_by_minlen  reads_passed_filter
 U03      37500                      0                      0                      0                      0                     0                         0                37500
 U04      37500                      0                      0                      0                      0                     0                         0                37500
@@ -1664,6 +1666,7 @@ U43      37500                      0                      0                    
 <p>Next, we’ll run step 3. This is the within-sample clustering step, in which the reads are compared against each other, clustered based on similarity into “loci”, and then aligned. This is a relatively computationally intensive step.</p>
 <pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 3</code></pre>
 <p>Once completed, we can view the results of this step in the <code>ubrucei_denovo_clust_0.85/s3_cluster_stats.txt</code> file:</p>
+<pre class="bash"><code>cat ubrucei_denovo_clust_0.85/s3_cluster_stats.txt</code></pre>
 <pre><code>    clusters_total  hidepth_min clusters_hidepth avg_depth_total avg_depth_mj avg_depth_stat sd_depth_total sd_depth_mj sd_depth_stat filtered_bad_align
 U03          11654            6             1123            2.81        14.98          14.98          17.88       56.10         56.10                  0
 U04          12440            6             1109            2.66        14.51          14.51          16.04       52.18         52.18                 25
@@ -1678,7 +1681,7 @@ U41          10944            6             1123            2.67        12.57   
 U42          11011            6             1083            2.82        14.71          14.71          16.80       51.99         51.99                  0
 U43          11010            6             1078            2.84        14.89          14.89          17.14       53.22         53.22                  0</code></pre>
 <div class="alert alert-info">
-<p><strong>Discussion:</strong> What can you glean from this output? What is the distribution of our sequencing coverage?</p>
+<p><strong>Discussion:</strong> What can you glean from this output? What is the distribution of our sequencing coverage? What do you think might contribute to heterogeneity in sequencing coverage among and within samples?</p>
 </div>
 </div>
 <div id="steps-4-5" class="section level3">
@@ -1801,12 +1804,14 @@ U43      7      37500                37500           11010              1078    
 </div>
 </div>
 </div>
-<div id="reference-based-assembly" class="section level2">
+<div id="refassembly" class="section level2">
 <h2>Reference-based assembly</h2>
 <p>Although we don’t want to use a full genome assembly as a reference genome, these RADcap data provide us with another opportunity for assembly: a “pseudo-reference” genome. To understand this, it’s worth thinking a bit about what the RADcap data are. We created 3RAD libraries—each of which probably contained hundreds of thousands of loci—for each individual, but then we conducted a “sequence capture” reaction to enrich them for a pre-selected subset of 1000 loci. So ideally, these reads are mostly from those 1000 loci. Rather than assemble these <em>de novo</em>, if we have a “reference” sequence for each those 1000 loci, we can just assemble against those!</p>
 <div class="alert alert-info">
 <p><strong>Discussion:</strong> How might you predict that assembling against a pseudo-reference genome will change the results of our assembly?</p>
 </div>
+<p>I’ve prepared one such pseudo-reference, and we can download the <code>\reference</code> directory in which it’s housed by entering the following command:</p>
+<pre class="bash"><code>svn checkout https://github.com/twpierson/nres721_assembly/trunk/reference</code></pre>
 <p>We can peek at this pseudo-reference—formatted as a FASTA file—here:</p>
 <pre class="bash"><code>head -n 10 reference/ubrucei_pseudoreference.fasta</code></pre>
 <pre><code>&gt;locus1
@@ -1822,7 +1827,7 @@ ATGGTGAGAGGGGACAGGGTCACTCCGGCCTCTGGCAGGGACACTGTCGCAATGGGGGCTGATTCTGACGAGTCACTACA
 <div class="alert alert-info">
 <p><strong>Discussion:</strong> How is this formatted? Where did R1 and R2 data end up, and what does this tell you about the size of the loci?</p>
 </div>
-<p>Create a new parameters file here by copying our <em>de novo</em> parameters file.</p>
+<p>Now, let’s assemble our data again—this time against this pseudo-reference! Since most of our parameters will stay the same, we can create a new parameters file here by copying our <em>de novo</em> parameters file.</p>
 <pre class="bash"><code>cp params-ubrucei_denovo.txt params-ubrucei_reference.txt</code></pre>
 <p>We should then alter the following parameters:</p>
 <ul>
@@ -1833,6 +1838,7 @@ ATGGTGAGAGGGGACAGGGTCACTCCGGCCTCTGGCAGGGACACTGTCGCAATGGGGGCTGATTCTGACGAGTCACTACA
 <p>Now, we’ll run this whole assembly, rather than break it down step-by-step like before. This should run relatively quickly, if you want to follow along.</p>
 <pre class="bash"><code>ipyrad -p params-ubrucei_reference.txt -s 1234567</code></pre>
 <p>Once it finishes, let’s look at the same summary statistics file.</p>
+<pre class="bash"><code>cat ubrucei_reference_outfiles/ubrucei_reference_stats.txt</code></pre>
 <pre><code>
 
 ## The number of loci caught by each filter.

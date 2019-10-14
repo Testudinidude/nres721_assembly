@@ -34,14 +34,16 @@ setwd("/Volumes/G-DRIVE/Dropbox/Teaching/2019_NRES_721/nres721_assembly")
 ```
 
 <div class="alert alert-danger">
-  <strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in [`ipyrad`](https://ipyrad.readthedocs.io/) for an in-class demonstration in UNR's NRES 721, not to be a comprehensive guide to doing this for research purposes. Students: if you wish to follow along, please install the latest version of `ipyrad` (directions [here](https://ipyrad.readthedocs.io/en/latest/3-installation.html)); I have written this tutorial using `v0.7.30`. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run `ipyrad` through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We'll return to `R` for downstream analyses! 
+  <strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in [`ipyrad`](https://ipyrad.readthedocs.io/) for an in-class demonstration in UNR's NRES 721, not to be a comprehensive guide to doing this for research purposes. 
   
-**If you wish to follow along, you can download all of the data we'll use from the `/data` directory in the Github repository [here](https://github.com/twpierson/nres721_assembly).** One easy way to download those data is by typing the following command in your Terminal window: `svn checkout https://github.com/twpierson/nres721_assembly/trunk/data`
+**Students: if you wish to follow along, please install the latest version of `ipyrad` (directions [here](https://ipyrad.readthedocs.io/en/latest/3-installation.html)); I have written this tutorial using `v0.7.30`**. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run `ipyrad` through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We'll return to `R` for downstream analyses! 
+  
+**If you do wish to follow along, you can download all of the data we'll use from the `/data` directory in the Github repository [here](https://github.com/twpierson/nres721_assembly).** One easy way to download those data is by typing the following command in your Terminal window: `svn checkout https://github.com/twpierson/nres721_assembly/trunk/data`
 </div>
 
 ## Introduction 
 
-Reduced-representation genomic sequencing (e.g., RADseq) is a popular method for generating large-scale datasets for population genomic and phylogenomic studies, especially for non-model organisms without reference genomes. The sequencing reads generated from these methods come from thousands to millions of different portions of the genome, and there are numerous methods for "assembling" these data. Typically, this means clustering sequences (either *de novo* or against a reference genome), aligning sequences, and callling SNPs.
+Reduced-representation genomic sequencing (e.g., RADseq) is a popular group of methods for generating large-scale datasets for population genomic and phylogenomic studies, especially for non-model organisms without reference genomes. The sequencing reads generated from these methods come from thousands to millions of different portions of the genome, and there are numerous methods for "assembling" these data. Typically, this means clustering sequences (either *de novo* or against a reference genome), aligning sequences, and callling SNPs.
 
 In this tutorial, we'll practice assembling RADseq-style data. Our objectives are to:
 
@@ -55,13 +57,13 @@ To do this, we'll use data from the patch-nosed salamander (*Urspelerpes brucei*
 
 \
 
-Let's jump right in and start assembling data. If you haven't already, navigate to the directory you'd like to work from:
+Let's jump right in and start assembling data. If you haven't already, navigate to a local directory you'd like to work from:
 
 ```{bash, comment = NA, eval = FALSE}
 cd [your working directory]
 ```
 
-Next, we want to download the data we'll use. If you've already done this (e.g., with the directions in the red box at the top of this page), you can just move that `\data` directory to your working directory. If you haven't, no problem! We can download those data now. If you're in your working directory, the following command will download our data into a `\data` directory within your current working directory:
+Next, we want to download the data we'll use. If you've already done this (e.g., with the directions in the red box at the top of this page), you can just move that `\data` directory to your working directory. If you haven't, no problem! We can download those data now. If you're in your working directory, the following command will download our data into a `\data` directory within it:
 
 ```{bash, eval = FALSE}
 svn checkout https://github.com/twpierson/nres721_assembly/trunk/data
@@ -86,29 +88,32 @@ There are two general ways in which we can assemble these data in `ipyrad`: *de 
   <strong>Discussion:</strong> What might the advantages be of assembling against a reference genome?
 </div>
 
-From within our working directory, we'll create a new assembly by entering:
+From within our working directory, we'll initiate a new assembly called `ubrucei_denovo` (and thus, create a parameters file) by entering:
 
 ```{bash, eval = FALSE}
-ipyrad -n template
+ipyrad -n ubrucei_denovo
 ```
 
-Then, look at this template `ipyrad` parameters file:
+Let's now look at this template of an `ipyrad` parameters file:
 
-```{bash comment=NA}
+```{bash comment=NA, eval = FALSE}
+cat params-ubrucei_denovo.txt
+```
+
+```{bash comment=NA, echo = FALSE, }
 cat ipyrad_files/params-template.txt
 ```
 
 This is the file in which you can tweak a number of assembly parameters. See [here](https://ipyrad.readthedocs.io/parameters.html) for a thorough description of what each of these means. For our purposes, we only need to change a few. In your favorite text editor, open `params-ubrucei_denovo.txt` and change the following lines:
 
-* `[0] [assembly_name]` : change this parameter to `ubrucei_denovo`
 * `[2] [raw_fastq_path]` : change this parameter to `./data/*fq.gz`
-* `[7] [datatype]` : change this parameter to `pairddrad` ; although these are RADcap data and thus, `pair3rad` might seem most appropriate, we have already independently "decloned" the reads and will treat them as `pairddrad` data for the purposes of this tutorial
+* `[7] [datatype]` : change this parameter to `pairddrad` ; although these are RADcap data and thus, `pair3rad` might seem most appropriate, we have already independently demultiplexed and "decloned" the reads and will treat them as `pairddrad` data for the purposes of this tutorial
 * `[8] [restriction_overhang]` : change this parameter to "CTAGA,AATTC,CATAGC"
 * `[21] [min_samples_locus]` : change this parameter to "5"
 * `[25] [trim_reads]` : change this parameter to "0, 120, 0, 120"
 * `[27] [output_formats]` : change this parameter to "*"
 
-Then, save the file as `params-ubrucei_denovo.txt`. Next, we'll assemble the data. This whole process isn't too computationally-intensive (i.e., it took ~40 minutes on my 16 GB RAM, 4-core Macbook), but we might not want to wait quite that long. Don't worry—there is an opportunity to assemble data in real-time later in this tutorial. Below, we'll break this down step-by-step.
+Then, save the file with these updates. Next, we'll assemble the data. This whole process isn't too computationally-intensive (i.e., it took ~40 minutes on my 16 GB RAM, 4-core Macbook), but we might not want to wait quite that long. Don't worry—there is an opportunity to assemble data in real-time later in this tutorial. Below, we'll break this down step-by-step. **Students in class: don't actually run any of these commands until we get to the ["Reference-based assembly"](#refassembly) section.**
 
 ### steps 1 & 2
 We'll do this first assembly step-by-step and talk about the output. First, we'll run step 1.
@@ -118,6 +123,10 @@ ipyrad -p params-ubrucei_denovo.txt -s 1
 ```
 
 This step simply reads in our data files, and we can review the results in the `ubrucei_denovo_s1_demultiplex_stats.txt` file.
+
+```{bash eval = FALSE, echo = TRUE, comment = NA}
+cat ubrucei_denovo_s1_demultiplex_stats.txt
+```
 
 ```{bash eval = TRUE, echo = FALSE, comment = NA}
 cat ipyrad_files/ubrucei_denovo_s1_demultiplex_stats.txt
@@ -130,6 +139,10 @@ ipyrad -p params-ubrucei_denovo.txt -s 2
 ```
 
 This step filters and edits reads, using thresholds set in the parameters file. This means that we (probably) don't need to filter data before entering `ipyrad`! We can view the results of this step in the `ubrucei_denovo_edits/s2_rawedit_stats.txt` file:
+
+```{bash eval = FALSE, echo = TRUE, comment = NA}
+cat ubrucei_denovo_edits/s2_rawedit_stats.txt
+```
 
 ```{bash eval = TRUE, echo = FALSE, comment = NA}
 cat ipyrad_files/ubrucei_denovo_edits/s2_rawedit_stats.txt
@@ -144,12 +157,16 @@ ipyrad -p params-ubrucei_denovo.txt -s 3
 
 Once completed, we can view the results of this step in the `ubrucei_denovo_clust_0.85/s3_cluster_stats.txt` file:
 
+```{bash eval = FALSE, echo = TRUE, comment = NA}
+cat ubrucei_denovo_clust_0.85/s3_cluster_stats.txt
+```
+
 ```{bash eval = TRUE, echo = FALSE, comment = NA}
 cat ipyrad_files/ubrucei_denovo_clust_0.85/s3_cluster_stats.txt
 ```
 
 <div class="alert alert-info">
-  <strong>Discussion:</strong> What can you glean from this output? What is the distribution of our sequencing coverage?
+  <strong>Discussion:</strong> What can you glean from this output? What is the distribution of our sequencing coverage? What do you think might contribute to heterogeneity in sequencing coverage among and within samples?
 </div>
 
 ### steps 4 & 5
@@ -183,12 +200,18 @@ cat ipyrad_files/ubrucei_denovo_outfiles/ubrucei_denovo_stats.txt
   <strong>Discussion:</strong> Examine these summary statistics. At what steps are loci being filtered out? Is this indicative of any problems with our analysis or data?
 </div>
 
-## Reference-based assembly
+## Reference-based assembly {#refassembly}
 Although we don't want to use a full genome assembly as a reference genome, these RADcap data provide us with another opportunity for assembly: a "pseudo-reference" genome. To understand this, it's worth thinking a bit about what the RADcap data are. We created 3RAD libraries—each of which probably contained hundreds of thousands of loci—for each individual, but then we conducted a "sequence capture" reaction to enrich them for a pre-selected subset of 1000 loci. So ideally, these reads are mostly from those 1000 loci. Rather than assemble these *de novo*, if we have a "reference" sequence for each those 1000 loci, we can just assemble against those!
 
 <div class="alert alert-info">
   <strong>Discussion:</strong> How might you predict that assembling against a pseudo-reference genome will change the results of our assembly?
 </div>
+
+I've prepared one such pseudo-reference, and we can download the `\reference` directory in which it's housed by entering the following command:
+
+```{bash, eval = FALSE}
+svn checkout https://github.com/twpierson/nres721_assembly/trunk/reference
+```
 
 We can peek at this pseudo-reference—formatted as a FASTA file—here:
 
@@ -200,7 +223,7 @@ head -n 10 reference/ubrucei_pseudoreference.fasta
   <strong>Discussion:</strong> How is this formatted? Where did R1 and R2 data end up, and what does this tell you about the size of the loci?
 </div>
 
-Create a new parameters file here by copying our *de novo* parameters file.
+Now, let's assemble our data again—this time against this pseudo-reference! Since most of our parameters will stay the same, we can create a new parameters file here by copying our *de novo* parameters file.
 
 ```{bash, eval = FALSE}
 cp params-ubrucei_denovo.txt params-ubrucei_reference.txt
@@ -219,6 +242,10 @@ ipyrad -p params-ubrucei_reference.txt -s 1234567
 ```
 
 Once it finishes, let's look at the same summary statistics file. 
+
+```{bash eval = FALSE, echo = TRUE, comment = NA}
+cat ubrucei_reference_outfiles/ubrucei_reference_stats.txt
+```
 
 ```{bash eval = TRUE, echo = FALSE, comment = NA}
 cat ipyrad_files/ubrucei_reference_outfiles/ubrucei_reference_stats.txt
