@@ -1521,7 +1521,7 @@ pre code, pre, code {
 </style>
 <div class="alert alert-danger">
 <p><strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in <a href="https://ipyrad.readthedocs.io/"><code>ipyrad</code></a> for an in-class demonstration in UNR’s NRES 721, not to be a comprehensive guide to doing this for research purposes.</p>
-<p><strong>Students: if you wish to follow along, please install the latest version of <code>ipyrad</code> (directions <a href="https://ipyrad.readthedocs.io/en/latest/3-installation.html">here</a>); I have written this tutorial using <code>v0.7.30</code></strong>. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run <code>ipyrad</code> through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We’ll return to <code>R</code> for downstream analyses!</p>
+<p><strong>Students: if you wish to follow along, please install the latest version of <code>ipyrad</code> (follow the <code>conda</code> directions <a href="https://ipyrad.readthedocs.io/en/latest/3-installation.html">here</a>); I have written this tutorial using <code>v0.9.14</code></strong>. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run <code>ipyrad</code> through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We’ll return to <code>R</code> for downstream analyses!</p>
 </div>
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
@@ -1583,13 +1583,13 @@ pre code, pre, code {
 <pre class="bash"><code>ipyrad -n ubrucei_denovo</code></pre>
 <p>Let’s now look at this template of an <code>ipyrad</code> parameters file:</p>
 <pre class="bash"><code>cat params-ubrucei_denovo.txt</code></pre>
-<pre><code>------- ipyrad params file (v.0.7.30)-------------------------------------------
+<pre><code>------- ipyrad params file (v.0.9.14)-------------------------------------------
 ubrucei_denovo                 ## [0] [assembly_name]: Assembly name. Used to name output directories for assembly steps
-./                             ## [1] [project_dir]: Project dir (made in curdir if not present)
+[your directory]               ## [1] [project_dir]: Project dir (made in curdir if not present)
                                ## [2] [raw_fastq_path]: Location of raw non-demultiplexed fastq files
                                ## [3] [barcodes_path]: Location of barcodes file
                                ## [4] [sorted_fastq_path]: Location of demultiplexed/sorted fastq files
-denovo                         ## [5] [assembly_method]: Assembly method (denovo, reference, denovo+reference, denovo-reference)
+denovo                         ## [5] [assembly_method]: Assembly method (denovo, reference)
                                ## [6] [reference_sequence]: Location of reference sequence file
 rad                            ## [7] [datatype]: Datatype (see docs): rad, gbs, ddrad, etc.
 TGCAG,                         ## [8] [restriction_overhang]: Restriction overhang (cut1,) or (cut1, cut2)
@@ -1603,30 +1603,32 @@ TGCAG,                         ## [8] [restriction_overhang]: Restriction overha
 0                              ## [16] [filter_adapters]: Filter for adapters/primers (1 or 2=stricter)
 35                             ## [17] [filter_min_trim_len]: Min length of reads after adapter trim
 2                              ## [18] [max_alleles_consens]: Max alleles per site in consensus sequences
-5, 5                           ## [19] [max_Ns_consens]: Max N's (uncalled bases) in consensus (R1, R2)
-8, 8                           ## [20] [max_Hs_consens]: Max Hs (heterozygotes) in consensus (R1, R2)
+0.05                           ## [19] [max_Ns_consens]: Max N's (uncalled bases) in consensus (R1, R2)
+0.05                           ## [20] [max_Hs_consens]: Max Hs (heterozygotes) in consensus (R1, R2)
 4                              ## [21] [min_samples_locus]: Min # samples per locus for output
-20, 20                         ## [22] [max_SNPs_locus]: Max # SNPs per locus (R1, R2)
-8, 8                           ## [23] [max_Indels_locus]: Max # of indels per locus (R1, R2)
-0.5                            ## [24] [max_shared_Hs_locus]: Max # heterozygous sites per locus (R1, R2)
+0.2                            ## [22] [max_SNPs_locus]: Max # SNPs per locus (R1, R2)
+8                              ## [23] [max_Indels_locus]: Max # of indels per locus (R1, R2)
+0.5                            ## [24] [max_shared_Hs_locus]: Max # heterozygous sites per locus
 0, 0, 0, 0                     ## [25] [trim_reads]: Trim raw read edges (R1&gt;, &lt;R1, R2&gt;, &lt;R2) (see docs)
 0, 0, 0, 0                     ## [26] [trim_loci]: Trim locus edges (see docs) (R1&gt;, &lt;R1, R2&gt;, &lt;R2)
-p, s, v                        ## [27] [output_formats]: Output formats (see docs)
-                               ## [28] [pop_assign_file]: Path to population assignment file</code></pre>
+p, s, l                        ## [27] [output_formats]: Output formats (see docs)
+                               ## [28] [pop_assign_file]: Path to population assignment file
+                               ## [29] [reference_as_filter]: Reads mapped to this reference are removed in step 3</code></pre>
 <p>This is the file in which you can tweak a number of assembly parameters. See <a href="https://ipyrad.readthedocs.io/parameters.html">here</a> for a thorough description of what each of these means. For our purposes, we only need to change a few. In your favorite text editor, open <code>params-ubrucei_denovo.txt</code> and change the following lines:</p>
 <ul>
 <li><code>[4] [sorted_fastq_path]</code> : change this parameter to <code>data/*fq.gz</code></li>
-<li><code>[7] [datatype]</code> : change this parameter to <code>pairddrad</code> ; although these are RADcap data and thus, <code>pair3rad</code> might seem most appropriate, we have already independently demultiplexed and “decloned” the reads and will treat them as <code>pairddrad</code> data for the purposes of this tutorial</li>
-<li><code>[8] [restriction_overhang]</code> : change this parameter to <code>CTAGA,AATTC,CATAGC</code></li>
+<li><code>[7] [datatype]</code> : change this parameter to <code>pair3rad</code></li>
+<li><code>[8] [restriction_overhang]</code> : change this parameter to <code>CTAGAT,AATTC,CTAGC</code></li>
+<li><code>[16] [filter_adapters]</code> : change this parameter to <code>2</code></li>
 <li><code>[21] [min_samples_locus]</code> : change this parameter to <code>5</code></li>
-<li><code>[25] [trim_reads]</code> : change this parameter to <code>0, 120, 0, 120</code></li>
+<li><code>[25] [trim_reads]</code> : change this parameter to <code>10, 120, 10, 120</code> ; We’re trimming off the first ten bases to deal with mapping issues caused by the inclusion/exclusion of restriction sites and trimming to a maximum length of 120 to normalize read length. This is relatively project-specific and not something you need to worry too much about when trying to understand these general concepts!</li>
 <li><code>[27] [output_formats]</code> : change this parameter to <code>*</code></li>
 </ul>
 <p>Then, save the file with these updates. Next, we’ll assemble the data. This whole process isn’t too computationally-intensive (i.e., it took ~40 minutes on my 16 GB RAM, 4-core Macbook), but we might not want to wait quite that long. Don’t worry—there is an opportunity to assemble data in real-time later in this tutorial. Below, we’ll break this down step-by-step. <strong>Students in class: don’t actually run any of these commands until we get to the <a href="#refassembly">“Reference-based assembly”</a> section.</strong></p>
 <div id="steps-1-2" class="section level3">
 <h3>steps 1 &amp; 2</h3>
-<p>We’ll do this first assembly step-by-step and talk about the output. First, we’ll run step 1.</p>
-<pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 1</code></pre>
+<p>We’ll do this first assembly step-by-step and talk about the output. First, we’ll run step 1. <strong>Note: the <code>-c 2</code> argument tells my computer to run this using two cores. You can adjust this as necsesary depending upon what resources you have available.</strong></p>
+<pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 1 -c</code></pre>
 <p>This step simply reads in our data files, and we can review the results in the <code>ubrucei_denovo_s1_demultiplex_stats.txt</code> file.</p>
 <pre class="bash"><code>cat ubrucei_denovo_s1_demultiplex_stats.txt</code></pre>
 <pre><code>     reads_raw
@@ -1647,18 +1649,18 @@ U43      37500</code></pre>
 <p>This step filters and edits reads, using thresholds set in the parameters file. This means that we (probably) don’t need to filter data before entering <code>ipyrad</code>! We can view the results of this step in the <code>ubrucei_denovo_edits/s2_rawedit_stats.txt</code> file:</p>
 <pre class="bash"><code>cat ubrucei_denovo_edits/s2_rawedit_stats.txt</code></pre>
 <pre><code>     reads_raw  trim_adapter_bp_read1  trim_adapter_bp_read2  trim_quality_bp_read1  trim_quality_bp_read2  reads_filtered_by_Ns  reads_filtered_by_minlen  reads_passed_filter
-U03      37500                      0                      0                      0                      0                     0                         0                37500
-U04      37500                      0                      0                      0                      0                     0                         0                37500
-U05      37500                      0                      0                      0                      0                     0                         0                37500
-U19      37500                      0                      0                      0                      0                     0                         0                37500
-U20      37500                      0                      0                      0                      0                     0                         0                37500
-U21      37500                      0                      0                      0                      0                     0                         0                37500
-U23      37500                      0                      0                      0                      0                     0                         0                37500
-U24      37500                      0                      0                      0                      0                     0                         0                37500
-U25      37500                      0                      0                      0                      0                     0                         0                37500
-U41      37500                      0                      0                      0                      0                     0                         0                37500
-U42      37500                      0                      0                      0                      0                     0                         0                37500
-U43      37500                      0                      0                      0                      0                     0                         0                37500</code></pre>
+U03      37500                   1515                    851                   6826                 105668                     0                       427                37073
+U04      37500                   1649                    889                   8357                 115236                     0                       460                37040
+U05      37500                   1419                    831                   6975                 102394                     0                       399                37101
+U19      37500                   1596                    843                   8995                  87001                     0                       324                37176
+U20      37500                   1723                    828                   8798                  93216                     0                       358                37142
+U21      37500                   1366                    836                   8556                  87858                     0                       315                37185
+U23      37500                   1612                    835                   6983                  97489                     0                       352                37148
+U24      37500                   1729                    885                   9037                 101776                     0                       358                37142
+U25      37500                   1451                    855                   8632                 117176                     0                       450                37050
+U41      37500                   2744                   1014                   8205                  63413                     0                       207                37293
+U42      37500                   2674                    932                   7453                  69472                     0                       241                37259
+U43      37500                   2413                    938                   8966                  78060                     0                       288                37212</code></pre>
 </div>
 <div id="step-3" class="section level3">
 <h3>step 3</h3>
@@ -1666,19 +1668,19 @@ U43      37500                      0                      0                    
 <pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 3</code></pre>
 <p>Once completed, we can view the results of this step in the <code>ubrucei_denovo_clust_0.85/s3_cluster_stats.txt</code> file:</p>
 <pre class="bash"><code>cat ubrucei_denovo_clust_0.85/s3_cluster_stats.txt</code></pre>
-<pre><code>    clusters_total  hidepth_min clusters_hidepth avg_depth_total avg_depth_mj avg_depth_stat sd_depth_total sd_depth_mj sd_depth_stat filtered_bad_align
-U03          11654            6             1123            2.81        14.98          14.98          17.88       56.10         56.10                  0
-U04          12440            6             1109            2.66        14.51          14.51          16.04       52.18         52.18                 25
-U05          11795            6             1136            2.75        14.52          14.52          17.64       55.39         55.39                 26
-U19          11379            6             1105            2.83        14.98          14.98          19.10       59.88         59.88                 31
-U20          11500            6             1067            2.82        15.16          15.16          18.32       58.64         58.64                 21
-U21          11336            6             1136            2.90        15.07          15.07          18.37       56.50         56.50                 19
-U23          11945            6             1098            2.71        14.76          14.76          16.63       53.31         53.31                 24
-U24          12355            6             1100            2.64        14.28          14.28          15.56       50.60         50.60                  0
-U25          11852            6             1109            2.76        14.77          14.77          16.93       53.79         53.79                 24
-U41          10944            6             1123            2.67        12.57          12.57           4.53        9.09          9.09                  4
-U42          11011            6             1083            2.82        14.71          14.71          16.80       51.99         51.99                  0
-U43          11010            6             1078            2.84        14.89          14.89          17.14       53.22         53.22                  0</code></pre>
+<pre><code>    clusters_total  hidepth_min clusters_hidepth avg_depth_total avg_depth_mj avg_depth_stat sd_depth_total sd_depth_mj sd_depth_stat
+U03          11268            6             1098            2.75        14.37          14.37          16.88       52.58         52.58
+U04          12063            6             1050            2.60        14.41          14.41          15.38       50.54         50.54
+U05          11417            6             1102            2.59        12.92          12.92           4.58        9.54          9.54
+U19          11082            6             1078            2.68        13.47          13.47           5.40       12.74         12.74
+U20          11171            6             1044            2.82        15.33          15.33          17.40       55.30         55.30
+U21          11050            6             1104            2.70        13.33          13.33           5.10       11.24         11.24
+U23          11658            6             1066            2.70        14.94          14.94          15.93       51.00         51.00
+U24          11988            6             1054            2.60        14.13          14.13          14.87       48.59         48.59
+U25          11520            6             1066            2.57        13.10          13.10           4.80       10.86         10.86
+U41          10677            6             1082            2.80        14.27          14.27          13.37       40.13         40.13
+U42          10742            6             1053            2.78        14.53          14.53          15.74       48.65         48.65
+U43          10646            6             1044            2.85        15.11          15.11          16.41       50.70         50.70</code></pre>
 <div class="alert alert-info">
 <p><strong>Discussion:</strong> What can you glean from this output? What is the distribution of our sequencing coverage? What do you think might contribute to heterogeneity in sequencing coverage among and within samples?</p>
 </div>
@@ -1699,37 +1701,35 @@ U43          11010            6             1078            2.84        14.89   
 <pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 7</code></pre>
 <p>This also produces a useful file (<code>ubrucei_denovo_outfiles/ubrucei_denovo_stats.txt</code>) with summary statistics, which looks like this:</p>
 <pre><code>
-
 ## The number of loci caught by each filter.
 ## ipyrad API location: [assembly].stats_dfs.s7_filters
 
                             total_filters  applied_order  retained_loci
-total_prefiltered_loci               1618              0           1618
-filtered_by_rm_duplicates              13             13           1605
-filtered_by_max_indels                 10             10           1595
-filtered_by_max_snps                    9              1           1594
-filtered_by_max_shared_het             65             59           1535
-filtered_by_min_sample                588            578            957
-filtered_by_max_alleles                91              9            948
-total_filtered_loci                   948              0            948
+total_prefiltered_loci                  0              0           1433
+filtered_by_rm_duplicates               9              9           1424
+filtered_by_max_indels                  6              6           1418
+filtered_by_max_SNPs                    0              0           1418
+filtered_by_max_shared_het             45             45           1373
+filtered_by_min_sample                491            489            884
+total_filtered_loci                   551            549            884
 
 
 ## The number of loci recovered for each Sample.
 ## ipyrad API location: [assembly].stats_dfs.s7_samples
 
      sample_coverage
-U03              792
-U04              770
-U05              800
-U19              761
-U20              752
-U21              782
-U23              771
-U24              762
-U25              775
-U41              698
-U42              706
-U43              745
+U03              738
+U04              716
+U05              749
+U19              705
+U20              704
+U21              727
+U23              723
+U24              712
+U25              715
+U41              635
+U42              656
+U43              685
 
 
 ## The number of loci for which N taxa have data.
@@ -1740,64 +1740,85 @@ U43              745
 2                0             0
 3                0             0
 4                0             0
-5               78            78
-6               86           164
-7               74           238
-8               68           306
-9               74           380
-10              98           478
-11             140           618
-12             330           948
+5               72            72
+6               80           152
+7               62           214
+8               76           290
+9               73           363
+10             101           464
+11             124           588
+12             296           884
 
 
-## The distribution of SNPs (var and pis) per locus.
+The distribution of SNPs (var and pis) per locus.
 ## var = Number of loci with n variable sites (pis + autapomorphies)
 ## pis = Number of loci with n parsimony informative site (minor allele in &gt;1 sample)
 ## ipyrad API location: [assembly].stats_dfs.s7_snps
+## The &quot;reference&quot; sample is included if present unless 'exclude_reference=True'
 
     var  sum_var  pis  sum_pis
-0   531        0  662        0
-1   197      197  135      135
-2    74      345   53      241
-3    53      504   44      373
-4    25      604   14      429
-5    19      699   11      484
-6    14      783   10      544
-7    12      867    5      579
-8     7      923    6      627
-9     4      959    2      645
-10    3      989    2      665
-11    1     1000    1      676
-12    0     1000    0      676
-13    3     1039    2      702
-14    1     1053    1      716
-15    1     1068    0      716
-16    0     1068    0      716
-17    0     1068    0      716
-18    0     1068    0      716
-19    1     1087    0      716
-20    1     1107    0      716
-21    0     1107    0      716
-22    0     1107    0      716
-23    0     1107    0      716
-24    1     1131    0      716
+0   488        0  607        0
+1   184      184  131      131
+2    79      342   62      255
+3    42      468   29      342
+4    17      536   16      406
+5    29      681   15      481
+6    13      759    8      529
+7    13      850    7      578
+8     3      874    3      602
+9     2      892    1      611
+10    3      922    1      621
+11    3      955    2      643
+12    0      955    0      643
+13    3      994    0      643
+14    0      994    1      657
+15    2     1024    0      657
+16    0     1024    0      657
+17    0     1024    0      657
+18    1     1042    0      657
+19    0     1042    0      657
+20    0     1042    0      657
+21    0     1042    0      657
+22    0     1042    0      657
+23    0     1042    0      657
+24    0     1042    1      681
+25    0     1042    0      681
+26    0     1042    0      681
+27    0     1042    0      681
+28    1     1070    0      681
+29    0     1070    0      681
+30    0     1070    0      681
+31    0     1070    0      681
+32    0     1070    0      681
+33    0     1070    0      681
+34    0     1070    0      681
+35    0     1070    0      681
+36    0     1070    0      681
+37    0     1070    0      681
+38    0     1070    0      681
+39    0     1070    0      681
+40    1     1110    0      681
 
 
 ## Final Sample stats summary
+     state  reads_raw  reads_passed_filter  refseq_mapped_reads  refseq_unmapped_reads  clusters_total  clusters_hidepth  hetero_est  error_est  reads_consens  loci_in_assembly
+U03      7      37500                37073                30953                   6120           11268              1098    0.013550   0.005020            941               738
+U04      7      37500                37040                31400                   5640           12063              1050    0.013419   0.005670            896               716
+U05      7      37500                37101                29571                   7530           11417              1102    0.015482   0.005835            938               749
+U19      7      37500                37176                29671                   7505           11082              1078    0.014641   0.005850            913               705
+U20      7      37500                37142                31531                   5611           11171              1044    0.014357   0.006062            895               704
+U21      7      37500                37185                29850                   7335           11050              1104    0.013657   0.005759            949               727
+U23      7      37500                37148                31524                   5624           11658              1066    0.014485   0.005682            913               723
+U24      7      37500                37142                31127                   6015           11988              1054    0.013287   0.005194            914               712
+U25      7      37500                37050                29628                   7422           11520              1066    0.012454   0.005587            910               715
+U41      7      37500                37293                29936                   7357           10677              1082    0.016725   0.006773            878               635
+U42      7      37500                37259                29867                   7392           10742              1053    0.016200   0.006346            889               656
+U43      7      37500                37212                30303                   6909           10646              1044    0.015841   0.007015            879               685
 
-     state  reads_raw  reads_passed_filter  clusters_total  clusters_hidepth  hetero_est  error_est  reads_consens  loci_in_assembly
-U03      7      37500                37500           11654              1123    0.011791   0.008379           1029               792
-U04      7      37500                37500           12440              1109    0.012127   0.008798           1013               770
-U05      7      37500                37500           11795              1136    0.011539   0.008005           1045               800
-U19      7      37500                37500           11379              1105    0.012177   0.007240           1015               761
-U20      7      37500                37500           11500              1067    0.011174   0.007838            978               752
-U21      7      37500                37500           11336              1136    0.012133   0.007808           1044               782
-U23      7      37500                37500           11945              1098    0.012531   0.007298           1005               771
-U24      7      37500                37500           12355              1100    0.011205   0.007440           1014               762
-U25      7      37500                37500           11852              1109    0.011092   0.008452           1025               775
-U41      7      37500                37500           10944              1123    0.012195   0.008249           1031               698
-U42      7      37500                37500           11011              1083    0.011476   0.008432           1006               706
-U43      7      37500                37500           11010              1078    0.011604   0.007870            999               745</code></pre>
+
+## Alignment matrix statistics:
+snps matrix size: (12, 1110), 23.05% missing sites.
+sequence matrix size: (12, 211231), 20.15% missing sites.</code></pre>
 <div class="alert alert-info">
 <p><strong>Discussion:</strong> Examine these summary statistics. At what steps are loci being filtered out? Is this indicative of any problems with our analysis or data?</p>
 </div>
@@ -1839,37 +1860,36 @@ ATGGTGAGAGGGGACAGGGTCACTCCGGCCTCTGGCAGGGACACTGTCGCAATGGGGGCTGATTCTGACGAGTCACTACA
 <p>Once it finishes, let’s look at the same summary statistics file.</p>
 <pre class="bash"><code>cat ubrucei_reference_outfiles/ubrucei_reference_stats.txt</code></pre>
 <pre><code>
-
 ## The number of loci caught by each filter.
 ## ipyrad API location: [assembly].stats_dfs.s7_filters
 
                             total_filters  applied_order  retained_loci
-total_prefiltered_loci                805              0            805
-filtered_by_rm_duplicates               0              0            805
-filtered_by_max_indels                  4              4            801
-filtered_by_max_snps                    0              0            801
-filtered_by_max_shared_het             11             11            790
-filtered_by_min_sample                151            148            642
-filtered_by_max_alleles                 3              1            641
-total_filtered_loci                   641              0            641
+total_prefiltered_loci                  0              0            905
+filtered_by_rm_duplicates               0              0            905
+filtered_by_max_indels                  0              0            905
+filtered_by_max_SNPs                    0              0            905
+filtered_by_max_shared_het             23             23            882
+filtered_by_min_sample                121            121            761
+total_filtered_loci                   144            144            761
 
 
 ## The number of loci recovered for each Sample.
 ## ipyrad API location: [assembly].stats_dfs.s7_samples
 
-     sample_coverage
-U03              545
-U04              535
-U05              548
-U19              532
-U20              527
-U21              546
-U23              546
-U24              540
-U25              533
-U41              433
-U42              441
-U43              507
+           sample_coverage
+reference              761
+U03                    643
+U04                    640
+U05                    653
+U19                    629
+U20                    613
+U21                    647
+U23                    638
+U24                    623
+U25                    628
+U41                    560
+U42                    575
+U43                    602
 
 
 ## The number of loci for which N taxa have data.
@@ -1880,55 +1900,63 @@ U43              507
 2                0             0
 3                0             0
 4                0             0
-5               42            42
-6               46            88
-7               49           137
-8               45           182
-9               60           242
-10              86           328
-11             112           440
-12             201           641
+5               32            32
+6               36            68
+7               47           115
+8               50           165
+9               52           217
+10              52           269
+11              79           348
+12             119           467
+13             294           761
 
 
-## The distribution of SNPs (var and pis) per locus.
+The distribution of SNPs (var and pis) per locus.
 ## var = Number of loci with n variable sites (pis + autapomorphies)
 ## pis = Number of loci with n parsimony informative site (minor allele in &gt;1 sample)
 ## ipyrad API location: [assembly].stats_dfs.s7_snps
+## The &quot;reference&quot; sample is included if present unless 'exclude_reference=True'
 
     var  sum_var  pis  sum_pis
-0   357        0  430        0
-1   128      128   99       99
-2    55      238   45      189
-3    38      352   30      279
-4    18      424   11      323
-5    11      479    9      368
-6     9      533    7      410
-7    12      617    5      445
-8     2      633    1      453
-9     6      687    3      480
-10    1      697    1      490
-11    0      697    0      490
-12    0      697    0      490
-13    2      723    0      490
-14    0      723    0      490
-15    2      753    0      490
+0   229        0  490        0
+1   177      177  134      134
+2   108      393   49      232
+3    71      606   35      337
+4    47      794   16      401
+5    38      984   15      476
+6    26     1140    6      512
+7    19     1273    8      568
+8    13     1377    2      584
+9     6     1431    3      611
+10    8     1511    1      621
+11    6     1577    0      621
+12    2     1601    1      633
+13    6     1679    1      646
+14    1     1693    0      646
+15    3     1738    0      646
+16    0     1738    0      646
+17    1     1755    0      646
 
 
 ## Final Sample stats summary
-
      state  reads_raw  reads_passed_filter  refseq_mapped_reads  refseq_unmapped_reads  clusters_total  clusters_hidepth  hetero_est  error_est  reads_consens  loci_in_assembly
-U03      7      37500                37500                 6122                  17516             915               621    0.002885   0.001820            613               545
-U04      7      37500                37500                 5714                  18432             915               591    0.002638   0.001949            583               535
-U05      7      37500                37500                 5876                  17465             917               623    0.001681   0.001738            617               548
-U19      7      37500                37500                 5630                  17369             899               590    0.002689   0.001551            584               532
-U20      7      37500                37500                 5819                  17558             903               583    0.002401   0.001862            577               527
-U21      7      37500                37500                 6074                  17016             902               617    0.003093   0.002015            606               546
-U23      7      37500                37500                 5806                  17724             909               608    0.002462   0.001732            602               546
-U24      7      37500                37500                 5540                  18442             903               603    0.001732   0.001702            596               540
-U25      7      37500                37500                 5954                  18115             906               584    0.001774   0.001938            580               533
-U41      7      37500                37500                 6583                  18601             878               477    0.002251   0.002163            472               433
-U42      7      37500                37500                 6629                  18202             899               494    0.001921   0.002286            489               441
-U43      7      37500                37500                 5818                  17347             909               558    0.003145   0.002266            549               507</code></pre>
+U03      7      37500                37073                14157                  22916             931               698    0.003323   0.001832            687               643
+U04      7      37500                37040                13587                  23453             948               691    0.003585   0.001900            681               640
+U05      7      37500                37101                14086                  23015             938               707    0.002505   0.001809            700               653
+U19      7      37500                37176                14217                  22959             929               685    0.004192   0.001778            672               629
+U20      7      37500                37142                14081                  23061             922               654    0.003445   0.001852            643               613
+U21      7      37500                37185                14479                  22706             922               701    0.003514   0.001924            690               647
+U23      7      37500                37148                13947                  23201             933               694    0.003301   0.001803            679               638
+U24      7      37500                37142                13320                  23822             936               680    0.003417   0.001822            669               623
+U25      7      37500                37050                13758                  23292             941               674    0.003358   0.001779            662               628
+U41      7      37500                37293                12321                  24972             914               610    0.004018   0.002619            598               560
+U42      7      37500                37259                13012                  24247             928               627    0.003828   0.002814            620               575
+U43      7      37500                37212                13309                  23903             937               649    0.004455   0.002187            638               602
+
+
+## Alignment matrix statistics:
+snps matrix size: (13, 1755), 22.69% missing sites.
+sequence matrix size: (13, 181974), 17.49% missing sites.</code></pre>
 <div class="alert alert-info">
 <p><strong>Discussion:</strong> Compare and contrast these results to those from the <em>de novo</em> assembly. What can explain the differences? It might be worth reflecting back upon what exactly RADcap data are.</p>
 </div>

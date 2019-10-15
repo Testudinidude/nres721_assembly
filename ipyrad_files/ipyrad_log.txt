@@ -72,3 +72,28 @@
   Begin run: 2019-10-14 17:21
   Using args {'force': True, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-ubrucei_reference.txt', 'branch': None, 'steps': '1', 'debug': False, 'new': None, 'download': None, 'MPI': False}
   Platform info: ('Darwin', 'Todds-MacBook-Pro.local', '18.7.0', 'Darwin Kernel Version 18.7.0: Tue Aug 20 16:57:14 PDT 2019; root:xnu-4903.271.2~2/RELEASE_X86_64', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.30]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2019-10-15 12:08
+  Using args {'force': False, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-ubrucei_reference.txt', 'branch': None, 'steps': '1234567', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Darwin', 'Todds-MacBook-Pro.local', '18.7.0', 'Darwin Kernel Version 18.7.0: Tue Aug 20 16:57:14 PDT 2019; root:xnu-4903.271.2~2/RELEASE_X86_64', 'x86_64')2019-10-15 12:15:56,264 	pid=72859 	[assembly.py]	ERROR 	IPyradWarningExit:     Output files already created for this Assembly in:
+    /Volumes/G-DRIVE/Dropbox/Teaching/2019_NRES_721/nres721_assembly/ipyrad_files/ubrucei_reference_outfiles
+    To overwrite, rerun using the force argument. 
+    
+
+ -------------------------------------------------------------
+  ipyrad [v.0.7.30]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2019-10-15 12:18
+  Using args {'force': True, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-ubrucei_reference.txt', 'branch': None, 'steps': '7', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Darwin', 'Todds-MacBook-Pro.local', '18.7.0', 'Darwin Kernel Version 18.7.0: Tue Aug 20 16:57:14 PDT 2019; root:xnu-4903.271.2~2/RELEASE_X86_64', 'x86_64')
+ -------------------------------------------------------------
+  ipyrad [v.0.7.30]
+  Interactive assembly and analysis of RAD-seq data
+ -------------------------------------------------------------
+  Begin run: 2019-10-15 12:26
+  Using args {'force': True, 'threads': 2, 'results': False, 'quiet': False, 'merge': None, 'ipcluster': None, 'cores': 0, 'params': 'params-ubrucei_reference.txt', 'branch': None, 'steps': '1234567', 'debug': False, 'new': None, 'download': None, 'MPI': False}
+  Platform info: ('Darwin', 'Todds-MacBook-Pro.local', '18.7.0', 'Darwin Kernel Version 18.7.0: Tue Aug 20 16:57:14 PDT 2019; root:xnu-4903.271.2~2/RELEASE_X86_64', 'x86_64')

@@ -1,35 +1,33 @@
 
-
 ## The number of loci caught by each filter.
 ## ipyrad API location: [assembly].stats_dfs.s7_filters
 
                             total_filters  applied_order  retained_loci
-total_prefiltered_loci               1618              0           1618
-filtered_by_rm_duplicates              13             13           1605
-filtered_by_max_indels                 10             10           1595
-filtered_by_max_snps                    9              1           1594
-filtered_by_max_shared_het             65             59           1535
-filtered_by_min_sample                588            578            957
-filtered_by_max_alleles                91              9            948
-total_filtered_loci                   948              0            948
+total_prefiltered_loci                  0              0           1433
+filtered_by_rm_duplicates               9              9           1424
+filtered_by_max_indels                  6              6           1418
+filtered_by_max_SNPs                    0              0           1418
+filtered_by_max_shared_het             45             45           1373
+filtered_by_min_sample                491            489            884
+total_filtered_loci                   551            549            884
 
 
 ## The number of loci recovered for each Sample.
 ## ipyrad API location: [assembly].stats_dfs.s7_samples
 
      sample_coverage
-U03              792
-U04              770
-U05              800
-U19              761
-U20              752
-U21              782
-U23              771
-U24              762
-U25              775
-U41              698
-U42              706
-U43              745
+U03              738
+U04              716
+U05              749
+U19              705
+U20              704
+U21              727
+U23              723
+U24              712
+U25              715
+U41              635
+U42              656
+U43              685
 
 
 ## The number of loci for which N taxa have data.
@@ -40,61 +38,82 @@ U43              745
 2                0             0
 3                0             0
 4                0             0
-5               78            78
-6               86           164
-7               74           238
-8               68           306
-9               74           380
-10              98           478
-11             140           618
-12             330           948
+5               72            72
+6               80           152
+7               62           214
+8               76           290
+9               73           363
+10             101           464
+11             124           588
+12             296           884
 
 
-## The distribution of SNPs (var and pis) per locus.
+The distribution of SNPs (var and pis) per locus.
 ## var = Number of loci with n variable sites (pis + autapomorphies)
 ## pis = Number of loci with n parsimony informative site (minor allele in >1 sample)
 ## ipyrad API location: [assembly].stats_dfs.s7_snps
+## The "reference" sample is included if present unless 'exclude_reference=True'
 
     var  sum_var  pis  sum_pis
-0   531        0  662        0
-1   197      197  135      135
-2    74      345   53      241
-3    53      504   44      373
-4    25      604   14      429
-5    19      699   11      484
-6    14      783   10      544
-7    12      867    5      579
-8     7      923    6      627
-9     4      959    2      645
-10    3      989    2      665
-11    1     1000    1      676
-12    0     1000    0      676
-13    3     1039    2      702
-14    1     1053    1      716
-15    1     1068    0      716
-16    0     1068    0      716
-17    0     1068    0      716
-18    0     1068    0      716
-19    1     1087    0      716
-20    1     1107    0      716
-21    0     1107    0      716
-22    0     1107    0      716
-23    0     1107    0      716
-24    1     1131    0      716
+0   488        0  607        0
+1   184      184  131      131
+2    79      342   62      255
+3    42      468   29      342
+4    17      536   16      406
+5    29      681   15      481
+6    13      759    8      529
+7    13      850    7      578
+8     3      874    3      602
+9     2      892    1      611
+10    3      922    1      621
+11    3      955    2      643
+12    0      955    0      643
+13    3      994    0      643
+14    0      994    1      657
+15    2     1024    0      657
+16    0     1024    0      657
+17    0     1024    0      657
+18    1     1042    0      657
+19    0     1042    0      657
+20    0     1042    0      657
+21    0     1042    0      657
+22    0     1042    0      657
+23    0     1042    0      657
+24    0     1042    1      681
+25    0     1042    0      681
+26    0     1042    0      681
+27    0     1042    0      681
+28    1     1070    0      681
+29    0     1070    0      681
+30    0     1070    0      681
+31    0     1070    0      681
+32    0     1070    0      681
+33    0     1070    0      681
+34    0     1070    0      681
+35    0     1070    0      681
+36    0     1070    0      681
+37    0     1070    0      681
+38    0     1070    0      681
+39    0     1070    0      681
+40    1     1110    0      681
 
 
 ## Final Sample stats summary
+     state  reads_raw  reads_passed_filter  refseq_mapped_reads  refseq_unmapped_reads  clusters_total  clusters_hidepth  hetero_est  error_est  reads_consens  loci_in_assembly
+U03      7      37500                37073                30953                   6120           11268              1098    0.013550   0.005020            941               738
+U04      7      37500                37040                31400                   5640           12063              1050    0.013419   0.005670            896               716
+U05      7      37500                37101                29571                   7530           11417              1102    0.015482   0.005835            938               749
+U19      7      37500                37176                29671                   7505           11082              1078    0.014641   0.005850            913               705
+U20      7      37500                37142                31531                   5611           11171              1044    0.014357   0.006062            895               704
+U21      7      37500                37185                29850                   7335           11050              1104    0.013657   0.005759            949               727
+U23      7      37500                37148                31524                   5624           11658              1066    0.014485   0.005682            913               723
+U24      7      37500                37142                31127                   6015           11988              1054    0.013287   0.005194            914               712
+U25      7      37500                37050                29628                   7422           11520              1066    0.012454   0.005587            910               715
+U41      7      37500                37293                29936                   7357           10677              1082    0.016725   0.006773            878               635
+U42      7      37500                37259                29867                   7392           10742              1053    0.016200   0.006346            889               656
+U43      7      37500                37212                30303                   6909           10646              1044    0.015841   0.007015            879               685
 
-     state  reads_raw  reads_passed_filter  clusters_total  clusters_hidepth  hetero_est  error_est  reads_consens  loci_in_assembly
-U03      7      37500                37500           11654              1123    0.011791   0.008379           1029               792
-U04      7      37500                37500           12440              1109    0.012127   0.008798           1013               770
-U05      7      37500                37500           11795              1136    0.011539   0.008005           1045               800
-U19      7      37500                37500           11379              1105    0.012177   0.007240           1015               761
-U20      7      37500                37500           11500              1067    0.011174   0.007838            978               752
-U21      7      37500                37500           11336              1136    0.012133   0.007808           1044               782
-U23      7      37500                37500           11945              1098    0.012531   0.007298           1005               771
-U24      7      37500                37500           12355              1100    0.011205   0.007440           1014               762
-U25      7      37500                37500           11852              1109    0.011092   0.008452           1025               775
-U41      7      37500                37500           10944              1123    0.012195   0.008249           1031               698
-U42      7      37500                37500           11011              1083    0.011476   0.008432           1006               706
-U43      7      37500                37500           11010              1078    0.011604   0.007870            999               745
+
+## Alignment matrix statistics:
+snps matrix size: (12, 1110), 23.05% missing sites.
+sequence matrix size: (12, 211231), 20.15% missing sites.

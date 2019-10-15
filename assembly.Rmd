@@ -36,7 +36,7 @@ setwd("/Volumes/G-DRIVE/Dropbox/Teaching/2019_NRES_721/nres721_assembly")
 <div class="alert alert-danger">
   <strong>Note:</strong> This tutorial is written to be a basic introduction to assembling RADseq-style data in [`ipyrad`](https://ipyrad.readthedocs.io/) for an in-class demonstration in UNR's NRES 721, not to be a comprehensive guide to doing this for research purposes. 
   
-**Students: if you wish to follow along, please install the latest version of `ipyrad` (directions [here](https://ipyrad.readthedocs.io/en/latest/3-installation.html)); I have written this tutorial using `v0.7.30`**. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run `ipyrad` through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We'll return to `R` for downstream analyses! 
+**Students: if you wish to follow along, please install the latest version of `ipyrad` (follow the `conda` directions [here](https://ipyrad.readthedocs.io/en/latest/3-installation.html)); I have written this tutorial using `v0.9.14`**. This program is written for Linux or Mac operating systems; if you are running Windows, you can try to run `ipyrad` through your favorite emulator or virtual machine, or you can just follow along as we move through the tutorial. We'll return to `R` for downstream analyses! 
 </div>
 
 ## Introduction 
@@ -105,19 +105,20 @@ cat ipyrad_files/params-template.txt
 This is the file in which you can tweak a number of assembly parameters. See [here](https://ipyrad.readthedocs.io/parameters.html) for a thorough description of what each of these means. For our purposes, we only need to change a few. In your favorite text editor, open `params-ubrucei_denovo.txt` and change the following lines:
 
 * `[4] [sorted_fastq_path]` : change this parameter to `data/*fq.gz`
-* `[7] [datatype]` : change this parameter to `pairddrad` ; although these are RADcap data and thus, `pair3rad` might seem most appropriate, we have already independently demultiplexed and "decloned" the reads and will treat them as `pairddrad` data for the purposes of this tutorial
-* `[8] [restriction_overhang]` : change this parameter to `CTAGA,AATTC,CATAGC`
+* `[7] [datatype]` : change this parameter to `pair3rad`
+* `[8] [restriction_overhang]` : change this parameter to `CTAGAT,AATTC,CTAGC`
+* `[16] [filter_adapters]` : change this parameter to `2`
 * `[21] [min_samples_locus]` : change this parameter to `5`
-* `[25] [trim_reads]` : change this parameter to `0, 120, 0, 120`
+* `[25] [trim_reads]` : change this parameter to `10, 120, 10, 120` ; We're trimming off the first ten bases to deal with mapping issues caused by the inclusion/exclusion of restriction sites and trimming to a maximum length of 120 to normalize read length. This is relatively project-specific and not something you need to worry too much about when trying to understand these general concepts!
 * `[27] [output_formats]` : change this parameter to `*`
 
 Then, save the file with these updates. Next, we'll assemble the data. This whole process isn't too computationally-intensive (i.e., it took ~40 minutes on my 16 GB RAM, 4-core Macbook), but we might not want to wait quite that long. Don't worry—there is an opportunity to assemble data in real-time later in this tutorial. Below, we'll break this down step-by-step. **Students in class: don't actually run any of these commands until we get to the ["Reference-based assembly"](#refassembly) section.**
 
 ### steps 1 & 2
-We'll do this first assembly step-by-step and talk about the output. First, we'll run step 1.
+We'll do this first assembly step-by-step and talk about the output. First, we'll run step 1. **Note: the `-c 2` argument tells my computer to run this using two cores. You can adjust this as necsesary depending upon what resources you have available.**
 
 ```{bash eval = FALSE}
-ipyrad -p params-ubrucei_denovo.txt -s 1
+ipyrad -p params-ubrucei_denovo.txt -s 1 -c
 ```
 
 This step simply reads in our data files, and we can review the results in the `ubrucei_denovo_s1_demultiplex_stats.txt` file.
