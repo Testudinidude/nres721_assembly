@@ -1627,8 +1627,8 @@ p, s, l                        ## [27] [output_formats]: Output formats (see doc
 <p>Then, save the file with these updates. Next, we’ll assemble the data. This whole process isn’t too computationally-intensive (i.e., it took ~40 minutes on my 16 GB RAM, 4-core Macbook), but we might not want to wait quite that long. Don’t worry—there is an opportunity to assemble data in real-time later in this tutorial. Below, we’ll break this down step-by-step. <strong>Students in class: don’t actually run any of these commands until we get to the <a href="#refassembly">“Reference-based assembly”</a> section.</strong></p>
 <div id="steps-1-2" class="section level3">
 <h3>steps 1 &amp; 2</h3>
-<p>We’ll do this first assembly step-by-step and talk about the output. First, we’ll run step 1. <strong>Note: the <code>-c 2</code> argument tells my computer to run this using two cores. You can adjust this as necsesary depending upon what resources you have available.</strong></p>
-<pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 1 -c</code></pre>
+<p>We’ll do this first assembly step-by-step and talk about the output. First, we’ll run step 1. <strong>Note: the <code>-c 2</code> argument tells my computer to run this using two cores. You can adjust this as necsesary depending upon what resources you have available. By default, <code>ipyrad</code> will use all cores available.</strong></p>
+<pre class="bash"><code>ipyrad -p params-ubrucei_denovo.txt -s 1 -c 2</code></pre>
 <p>This step simply reads in our data files, and we can review the results in the <code>ubrucei_denovo_s1_demultiplex_stats.txt</code> file.</p>
 <pre class="bash"><code>cat ubrucei_denovo_s1_demultiplex_stats.txt</code></pre>
 <pre><code>     reads_raw

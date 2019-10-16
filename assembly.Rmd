@@ -115,10 +115,10 @@ This is the file in which you can tweak a number of assembly parameters. See [he
 Then, save the file with these updates. Next, we'll assemble the data. This whole process isn't too computationally-intensive (i.e., it took ~40 minutes on my 16 GB RAM, 4-core Macbook), but we might not want to wait quite that long. Don't worry—there is an opportunity to assemble data in real-time later in this tutorial. Below, we'll break this down step-by-step. **Students in class: don't actually run any of these commands until we get to the ["Reference-based assembly"](#refassembly) section.**
 
 ### steps 1 & 2
-We'll do this first assembly step-by-step and talk about the output. First, we'll run step 1. **Note: the `-c 2` argument tells my computer to run this using two cores. You can adjust this as necsesary depending upon what resources you have available.**
+We'll do this first assembly step-by-step and talk about the output. First, we'll run step 1. **Note: the `-c 2` argument tells my computer to run this using two cores. You can adjust this as necsesary depending upon what resources you have available. By default, `ipyrad` will use all cores available.**
 
 ```{bash eval = FALSE}
-ipyrad -p params-ubrucei_denovo.txt -s 1 -c
+ipyrad -p params-ubrucei_denovo.txt -s 1 -c 2
 ```
 
 This step simply reads in our data files, and we can review the results in the `ubrucei_denovo_s1_demultiplex_stats.txt` file.
