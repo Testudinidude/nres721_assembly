@@ -1,0 +1,356 @@
+---
+title: "RADseq data assembly in `ipyrad`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+knit: (function(input_file, encoding) {
+  out_dir <- 'docs';
+  rmarkdown::render(input_file,
+ encoding=encoding,
+ output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
+author: "Nathan W. Byer (modified from Todd W. Pierson)"
+date: "16 October 2019"
+---
+<style>
+pre code, pre, code {
+  white-space: pre !important;
+  overflow-x: scroll !important;
+  word-break: keep-all !important;
+  word-wrap: initial !important;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(width = 200, height = 50)
+#```{r setup, include=FALSE}
+#knitr::opts_chunk$set(echo = TRUE, width.cutoff=120)
+```
+
+```{r, include=FALSE}
+setwd("/home/molecularecology/Downloads/nres721_assembly")
+```
+
+<div class="alert alert-danger">
+  <strong>Note:</strong> This tutorial represents an updated version of Todd Pierson's "RADseq data assembly in 'ipyrad'" tutorial (https://github.com/twpierson/nres721_assembly). As before, this tutorial is written as a basic introduction to assembling RADseq datasets in [`ipyrad`](https://ipyrad.readthedocs.io/) for use in NRES 721, and is by no means comprehensive. For more details on parameters involved in ipyrad assembly, I would recommend checking out the ['ipyrad tutorials'](https://ipyrad.readthedocs.io/en/master/9-tutorials.html).
+  
+**Students: if you wish to follow along, please install the latest version of `ipyrad` (follow the `conda` directions [here](https://ipyrad.readthedocs.io/en/latest/3-installation.html)); this tutorial was writen using `v0.9.81`**. As with many software resources for bioinformatic analyses, ipyrad was written for Linux or Mac operating systems; if you are running Windows (or would prefer not to worry about installing ipyrad), I would recommend using the VirtualBox environment set up in previous classes! I have already installed ipyrad on the VirtualBox, so you will easily be able to follow along with the tutorial from there.
+</div>
+
+## Introduction 
+
+Reduced-representation genomic sequencing (e.g., RADseq) is a popular group of methods for generating large-scale datasets for population genomic and phylogenomic studies, especially for non-model organisms without reference genomes. The sequencing reads generated from these methods come from thousands to millions of different portions of the genome, and there are numerous methods for "assembling" these data. Typically, this means clustering sequences (either *de novo* or against a reference genome), aligning sequences, and calling SNPs.
+
+In this tutorial, we'll practice assembling RADseq-style data. Our objectives are to:
+
+1) understand how `ipyrad` assembles data
+2) compare results from a *de novo* and reference-based assembly
+3) produce output files for use in downstream analyses
+
+To do this, we'll use data from the pygmy rabbit (*Brachylagus idahoensis*) - the smallest leporid in the world!
+
+
+<center>![](/home/molecularecology/Downloads/nres721_assembly/BRACHYLAGUS_IDAHOENSIS.jpg){ width=40% }</center>
+
+\
+
+We are going to jump right into assembly! To start, let's open up the terminal and navigate to the tutorial directory; it might look something like this: 
+
+```{bash, comment = NA}
+cd /home/molecularecology/Downloads/nres721_assembly
+```
+
+Next, we should check out the directory structure in that folder using 'ls':
+
+```{bash}
+ls
+```
+
+What folders do you see? We should have a data folder, an ipyrad folder, a reference folder, and a docs folder. Don't worry about the docs folder - that is where this tutorial lives! In a similar fashion, don't worry about the .Rmd file; that is the raw code I used to generate this tutorial. We will focus on the data folder for now. 
+
+These data are a small subset of a larger, previously-published 3RAD project, focusing on the adaptive potential and population genetics of pygmy rabbits in the southern Great Basin [(Byer et al. 2021)](https://onlinelibrary.wiley.com/doi/10.1111/mec.16040). This subset contains data from twenty individuals: five each from four collection localities. We can see these files in our `\data` directory:
+
+```{bash, comment=NA}
+ls ./data/*
+```
+
+There are a total of 40 files, consisting of a R1 and R2 file for each of the 20 samples. The first four letters of each sample name designates the sampling site of origin for that sample (KBDC = Bodie State Park, near the Mono Basin of California, KJGB = Jiggs, in eastern Nevada, KWGA = West Gulch, near the border between Nevada and Oregon, and OIV = Indian Valley, near central Nevada. These data have already been demultiplexed; the data for each sample has been subsetted down to 0.1% of its original read count to make things more manageable for you all!
+
+## *De novo* assembly
+<div class="alert alert-danger">
+  <strong>Note:</strong> Today, we are going to use `ipyrad` to "call" genotypes. Some studies (e.g., [Gompert and Buerkle 2011](https://www.genetics.org/content/187/3/903?ijkey=db1c78ecc5d6122e25f7ddb64c0447c2fa3d6b32&keytype2=tf_ipsecsha); [Fumagalli et al. 2013](https://www.genetics.org/content/195/3/979)) have demonstrated the pitfalls of definitive genotype calling and instead strongly encourage the use of "genotype likelihoods", which allow error in estimating genotypes to propogate through downstream analyses. For the sake of simplicity today, we will be calling (and later, using) called genotypes.
+</div>
+
+There are two general ways in which we can assemble these data in `ipyrad`: *de novo* and *reference*. In a *de novo* assembly, reads are clustered and aligned against other reads, and no reference genome is required. This is really great for non-model organisms for which reference genomes don't exist! In the case of the pygmy rabbit, the Matocq lab recently generated a reference genome, which will allow us to compare and contrast *de novo* and *reference* assemblies. For our purposes today, we're going to start by assembling these data *de novo*. 
+
+
+<div class="alert alert-info">
+  <strong>Discussion:</strong> What might the advantages be of assembling against a reference genome?
+</div>
+
+
+From within our working directory, we'll initiate a new assembly called `bidaho_denovo` (and thus, create a parameters file) by first moving to the ipyrad_files directory and creating a new assembly. We can do so using the following code:
+
+```{bash, eval = F}
+cd /home/molecularecology/Downloads/nres721_assembly/ipyrad_files 
+ipyrad -n bidaho_denovo
+```
+
+Let's now look at this `ipyrad` parameters file:
+
+```{bash comment=NA, eval = FALSE}
+cat params-bidaho_denovo.txt
+```
+
+
+This is the file in which you can tweak a number of assembly parameters. See [here](https://ipyrad.readthedocs.io/parameters.html) for a thorough description of what each of these means. For our purposes, we only need to change a few. In your favorite text editor, open `params-ubrucei_denovo.txt` and change the following lines:
+
+* `[4] [sorted_fastq_path]` : change this parameter to `data/*fq.gz`
+* `[7] [datatype]` : change this parameter to `pair3rad`
+* `[8] [restriction_overhang]` : change this parameter to `CTAGAT,AATTC,CTAGC`
+* `[11] [mindepth_statistical]`: change this parameter to 6
+* `[12] [mindepth_majrule]`: change this parameter to 3
+* `[16] [filter_adapters]` : change this parameter to `2`
+* `[21] [min_samples_locus]` : change this parameter to `5`
+* `[27] [output_formats]` : change this parameter to `*`
+
+Then, save the file with these updates. Next, we'll assemble the data. This whole process isn't too computationally-intensive (i.e., on the UbuntuWorkspace VirtualBox, it took me about 30 minutes to run the entire workflow), but we should run this step-by-step to understand what is going on. 
+
+
+### steps 1 & 2
+We'll do this first assembly step-by-step and talk about the output. First, we'll run step 1. **Note:  By default, `ipyrad` will use all computer cores available, but you can set -c as needed to increase or decrease computational resources devoted to the assembly. Set these cautiously, though - and with a full awareness of the computational capabilities of your computer! **
+
+
+```{bash eval = FALSE}
+ipyrad -p params-bidaho_denovo.txt -s 1 -d -f
+```
+
+This step simply reads in our data files, and we can review the results in the `ubrucei_denovo_s1_demultiplex_stats.txt` file. **Note:  You likely figured out that the -s argument refers to the step(s) that should be run in the assembly; but the -d and -f arguments may seem a bit confusing. They are fairly straightforward, actually: -d enables "debugging", and allows us to see the progress in each phase of each step in the assembly; the -f forces re-running of steps that may have been run before (by default, ipyrad does not run if it sees that the steps in question have been run before). **
+
+```{bash eval = FALSE, echo = TRUE, comment = NA}
+cat bidaho_denovo_s1_demultiplex_stats.txt
+```
+
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/bidaho_denovo_s1_demultiplex_stats.txt
+```
+
+Next, we'll run step 2.
+
+```{bash eval = FALSE}
+ipyrad -p params-bidaho_denovo.txt -s 2 -d -f
+```
+
+
+This step filters and edits reads, using thresholds set in the parameters file. This means that we (probably) don't need to filter data before entering `ipyrad`! We can view the results of this step in the `ubrucei_denovo_edits/s2_rawedit_stats.txt` file:
+
+```{bash eval = FALSE, echo = TRUE, comment = NA}
+cat bidaho_denovo_edits/s2_rawedit_stats.txt
+```
+
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/bidaho_denovo_edits/s2_rawedit_stats.txt
+```
+
+
+### step 3
+Next, we'll run step 3. This is the within-sample clustering step, in which the reads are compared against each other, clustered based on similarity into "loci", and then aligned. This is a relatively computationally intensive step.
+
+```{bash eval = FALSE}
+ipyrad -p params-bidaho_denovo.txt -s 3 -d -f
+```
+
+Once completed, we can view the results of this step in the `bidaho_denovo_clust_0.85/s3_cluster_stats.txt` file:
+
+```{bash eval = FALSE, echo = TRUE, comment = NA}
+cat bidaho_denovo_clust_0.85/s3_cluster_stats.txt
+```
+
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/bidaho_denovo_clust_0.85/s3_cluster_stats.txt
+```
+
+<div class="alert alert-info">
+  <strong>Discussion:</strong> What can you glean from this output? What is the distribution of our sequencing coverage? What do you think might contribute to heterogeneity in sequencing coverage among and within samples?
+</div>
+
+### steps 4 & 5
+Next, we'll run steps 4 and 5 together. These steps estimate sequencing error rates, estimate genome-wide heterozygosity, and call consensus sequences for each individual for use in across-sample clustering.
+
+```{bash eval = FALSE}
+ipyrad -p params-bidaho_denovo.txt -s 45 -d -f
+```
+
+We can view the results of step 4:
+
+```{bash eval = FALSE, echo = TRUE, comment = NA}
+cat bidaho_denovo_clust_0.85/s4_joint_estimate.txt
+```
+
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/bidaho_denovo_clust_0.85/s4_joint_estimate.txt
+```
+
+We can also view the results for step 5: 
+
+```{bash eval = FALSE, echo = TRUE, comment = NA}
+cat bidaho_denovo_consens/s5_consens_stats.txt
+```
+
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/bidaho_denovo_consens/s5_consens_stats.txt
+```
+
+### step 6
+Let's proceed to step 6. This is another "clustering" step, but instead of clustering reads within individuals, we're clustering loci across individuals. With many samples, this step can be computationally intensive, but it should run quite quickly for us.
+
+```{bash eval = FALSE}
+ipyrad -p params-bidaho_denovo.txt -s 6 -d -f
+```
+
+### step 7
+Finally, we'll run step 7, in which loci are catalogued, and data are output into a variety of formats (e.g., VCF, PHYLIP, Structure, etc.) for downstream analysis. 
+
+```{bash eval = FALSE}
+ipyrad -p params-bidaho_denovo.txt -s 7 -d -f
+```
+
+This also produces a useful file (`bidaho_denovo_outfiles/bidaho_denovo_stats.txt`) with summary statistics, which looks like this:
+
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/bidaho_denovo_outfiles/bidaho_denovo_stats.txt
+```
+
+<div class="alert alert-info">
+  <strong>Discussion:</strong> Examine these summary statistics. At what steps are loci being filtered out? Is this indicative of any problems with our analysis or data?
+</div>
+
+
+## Reference-based assembly {#refassembly}
+
+These 3RAD data provide an excellent opportunity for exploring the relative costs and benefits of an alternative assembly method - 
+Although we don't want to use a full genome assembly as a reference genome, these RADcap data provide us with another opportunity for assembly: a "pseudo-reference" genome. To understand this, it's worth thinking a bit about what the RADcap data are. We created 3RAD libraries—each of which probably contained hundreds of thousands of loci—for each individual, but then we conducted a "sequence capture" reaction to enrich them for a pre-selected subset of 1000 loci. So ideally, these reads are mostly from those 1000 loci. Rather than assemble these *de novo*, if we have a "reference" sequence for each those 1000 loci, we can just assemble against those!
+
+<div class="alert alert-info">
+  <strong>Discussion:</strong> How might you predict that assembling against a reference genome will change the results of our assembly?
+</div>
+
+We have one such reference already prepared, and we can peek at this FASTA file:
+
+```{bash, eval = FALSE, comment = NA}
+head -n 10 reference/Brachylagus_DTG_Mito_sub01.fasta
+```
+
+
+As with the FASTQ files before, I have subsampled this file for convenience. 
+
+
+<div class="alert alert-info">
+  <strong>Discussion:</strong> How is this reference formatted? 
+</div>
+
+Given computational limitations (basically, processing the full reference takes quite a bit more computational power than we have available!) I have already run this reference-based assembly; let's take a look at the parameters file for this reference assembly, though:
+
+```{bash, eval = FALSE}
+cat params-bidaho_reference.txt
+```
+
+
+```{bash, eval = TRUE, echo = FALSE}
+cat ipyrad_files/params-bidaho_reference.txt
+```
+
+<div class="alert alert-info">
+  <strong>Discussion:</strong> Do you notice any differences between this parameter file and the *de novo* parameter file?
+</div>
+
+
+```{bash, eval = FALSE}
+ipyrad -p params-ubrucei_reference.txt -s 1234567
+```
+
+As before, we will walk through each step of the assembly - but rather than actually running this assembly, we will just inspect the stats files produced at each step!
+
+<div class="alert alert-alert">
+  <strong>Discussion:</strong> Before we dive in, let's try to make some predictions about where we think these two assemblies will differ. Will it be:
+  
+  a. during fastq editing (steps 1-2)
+  b. during initial clustering (step 3)
+  c. during error rate estimation and consensus calling (steps 4-5)
+  d. during final assembly steps (steps 6-7)? 
+  
+  You can pick more than one (or all) of these choices - but let's make these predictions before we proceed!
+  
+</div>
+
+
+
+### step 1
+
+
+```{bash eval = FALSE, echo = TRUE, comment = NA}
+cat bidaho_reference_s1_demultiplex_stats.txt
+```
+
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/bidaho_reference_s1_demultiplex_stats.txt
+```
+
+### step 2
+
+```{bash eval = FALSE, echo = TRUE, comment = NA}
+cat bidaho_reference_edits/s2_rawedit_stats.txt
+```
+
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/bidaho_reference_edits/s2_rawedit_stats.txt
+```
+
+### step 3
+
+```{bash eval = FALSE, echo = TRUE, comment = NA}
+cat bidaho_reference_clust_0.85/s3_cluster_stats.txt
+```
+
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/bidaho_reference_clust_0.85/s3_cluster_stats.txt
+```
+
+### step 4
+
+```{bash eval = FALSE, echo = TRUE, comment = NA}
+cat bidaho_reference_clust_0.85/s4_joint_estimate.txt
+```
+
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/bidaho_reference_clust_0.85/s4_joint_estimate.txt
+```
+
+### step 5
+
+```{bash eval = FALSE, echo = TRUE, comment = NA}
+cat bidaho_reference_consens/s5_consens_stats.txt
+```
+
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/bidaho_reference_consens/s5_consens_stats.txt
+```
+
+### step 7
+
+```{bash eval = TRUE, echo = FALSE, comment = NA}
+cat ipyrad_files/bidaho_reference_outfiles/bidaho_reference_stats.txt
+```
+
+<div class="alert alert-success">
+  <strong>Discussion:</strong> You just completed your first RADseq assemblies! A few questions to consider as we conclude.
+  
+  1. So - was your prediction right? Which steps differed between assemblies? Which steps were the same? 
+  2. Based on your answer to 1., could you put into words what the relative advantages of reference-based assemblies might be?
+  3. Can you think of any scenarios when a *de novo* assembly may have advantages over reference assemblies? 
+  
+</div>
+
+Great job! In the next tutorial, we will learn about some basic population genomic and phylogenomic tools that we can use to answer questions based on post-assembly datasets. 
