@@ -11,7 +11,7 @@ knit: (function(input_file, encoding) {
  encoding=encoding,
  output_file=file.path(dirname(input_file), out_dir, 'index.html'))})
 author: "Nathan W. Byer (modified from Todd W. Pierson)"
-date: "16 October 2019"
+date: "02 Mar 2022"
 ---
 <style>
 pre code, pre, code {
